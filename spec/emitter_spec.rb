@@ -84,4 +84,14 @@ describe L2meter::Emitter do
       expect(output).to eq("hello=world foo\n")
     end
   end
+
+  describe "#silence" do
+    it "prevents from loggin to the output" do
+      subject.silence do
+        subject.log :foo
+      end
+
+      expect(output).to be_empty
+    end
+  end
 end

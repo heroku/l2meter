@@ -18,6 +18,14 @@ module L2meter
       end
     end
 
+    def silence
+      output = configuration.output
+      configuration.output = NullObject.new
+      yield
+    ensure
+      configuration.output = output
+    end
+
     private
 
     def context

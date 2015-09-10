@@ -5,6 +5,7 @@ module L2meter
 
   autoload :Configuration, "l2meter/configuration"
   autoload :Emitter,       "l2meter/emitter"
+  autoload :NullObject,    "l2meter/null_object"
 
   def build
     Emitter.new.tap do |emitter|
