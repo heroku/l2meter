@@ -1,6 +1,7 @@
 module L2meter
   class Configuration
     attr_writer :output
+    attr_accessor :source
 
     def output
       @output ||= $stdout
@@ -36,16 +37,16 @@ module L2meter
     end
 
     def context(&block)
-      @context_block = block
+      @context = block
     end
 
-    def context=(value)
-      @static_context = value
+    def context=(block_or_value)
+      @context = block_or_value
     end
 
     def get_context
-      return @static_context if @static_context
-      @context_block ? @context_block.call.to_h : {}
+      return {} unless defined?(@context)
+      @context.respond_to?(:call) ? @context.call.to_h : @context.clone
     end
   end
 end

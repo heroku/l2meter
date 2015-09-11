@@ -101,7 +101,40 @@ describe L2meter::Emitter do
     it "logs context" do
       configuration.context = { hello: "world" }
       subject.log :foo
-      expect(output).to eq("hello=world foo\n")
+      subject.log :bar
+      expect(output).to eq("hello=world foo\nhello=world bar\n")
+    end
+
+    it "logs dynamic context" do
+      client = double
+      expect(client).to receive(:get_id).and_return("abcd").twice
+      configuration.context = ->{{ foo: client.get_id }}
+      subject.log bar: :bar
+      subject.log fizz: :buzz
+      expect(output).to eq("foo=abcd bar=bar\nfoo=abcd fizz=buzz\n")
+    end
+
+    it "allows overriding context with arguments" do
+      configuration.context = { foo: "context" }
+      subject.log foo: "argument"
+      expect(output).to eq("foo=argument\n")
+    end
+
+    it "appends source to every message if specified" do
+      configuration.source = "us-west"
+      subject.log "regular log"
+      subject.log key: "value"
+      subject.context with: :context do
+        subject.log "hello world"
+      end
+
+      expected = String.new.tap do |log|
+        log << "source=us-west regular-log\n"
+        log << "source=us-west key=value\n"
+        log << "source=us-west with=context hello-world\n"
+      end
+
+      expect(output).to eq(expected)
     end
   end
 
@@ -145,6 +178,12 @@ describe L2meter::Emitter do
       subject.measure "query", 200, unit: :ms
       expect(output).to eq("measure#query.ms=200\n")
     end
+
+    it "includes source" do
+      configuration.source = "us-west"
+      subject.measure "query", 200, unit: :ms
+      expect(output).to eq("source=us-west measure#query.ms=200\n")
+    end
   end
 
   describe "#count" do
@@ -157,12 +196,24 @@ describe L2meter::Emitter do
       subject.count :thing
       expect(output).to eq("count#thing=1\n")
     end
+
+    it "includes source" do
+      configuration.source = "us-west"
+      subject.count :thing
+      expect(output).to eq("source=us-west count#thing=1\n")
+    end
   end
 
   describe "#unique" do
     it "outputs a message with a unique prefix" do
       subject.unique "registration", "user@example.com"
       expect(output).to eq("unique#registration=user@example.com\n")
+    end
+
+    it "includes source" do
+      configuration.source = "us-west"
+      subject.unique "registration", "user@example.com"
+      expect(output).to eq("source=us-west unique#registration=user@example.com\n")
     end
   end
 end

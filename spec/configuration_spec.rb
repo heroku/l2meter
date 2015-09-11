@@ -65,4 +65,13 @@ describe L2meter::Configuration do
     expect(subject.get_context).to eq(hello: 1)
     expect(subject.get_context).to eq(hello: 2)
   end
+
+  it "has a default source value" do
+    expect(subject.source).to be_nil
+  end
+
+  it "allows setting source" do
+    subject.source = "hello"
+    expect(subject.source).to eq("hello")
+  end
 end

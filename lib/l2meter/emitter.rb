@@ -78,8 +78,14 @@ module L2meter
       end
     end
 
+    def prepare_params(params)
+      params = format_keys(params)
+      source = configuration.source
+      source ? { source: source }.merge(params) : params
+    end
+
     def write(params)
-      tokens = format_keys(params).map do |key, value|
+      tokens = prepare_params(params).map do |key, value|
         value == true ? key : [ key, format_value(value) ] * ?=
       end
 
