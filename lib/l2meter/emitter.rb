@@ -6,7 +6,8 @@ module L2meter
       @configuration = configuration
     end
 
-    def log(*args, **params)
+    def log(*args)
+      params = Hash === args.last ? args.pop : {}
       args = args.map { |key| [ key, true ] }.to_h
       params = args.merge(params)
       params = context.merge(params)
@@ -32,12 +33,23 @@ module L2meter
       configuration.get_context
     end
 
+    def format_value(value)
+      configuration.value_formatter.call(value)
+    end
+
+    def format_key(key)
+      configuration.key_formatter.call(key)
+    end
+
+    def format_keys(params)
+      params.inject({}) do |normalized, (key, value)|
+        normalized.tap { |n| n[format_key(key)] = value }
+      end
+    end
+
     def write(params)
-      tokens = params.map do |key, value|
-        key = configuration.key_formatter.call(key)
-        next key if value == true
-        value = configuration.value_formatter.call(value)
-        [ key, value ] * ?=
+      tokens = format_keys(params).map do |key, value|
+        value == true ? key : [ key, format_value(value) ] * ?=
       end
 
       tokens.sort! if configuration.sort?

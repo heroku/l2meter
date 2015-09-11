@@ -19,9 +19,19 @@ describe L2meter::Emitter do
       expect(output).to eq("foo=bar\n")
     end
 
+    it "logs key-value pairs with string as keys" do
+      subject.log "foo" => "bar"
+      expect(output).to eq("foo=bar\n")
+    end
+
     it "logs arguments and key-value pairs" do
       subject.log :foo, :bar, fizz: :buzz
       expect(output).to eq("foo bar fizz=buzz\n")
+    end
+
+    it "never outputs the same token twice" do
+      subject.log foo: :bar, "foo" => "baz"
+      expect(output).to eq("foo=baz\n")
     end
 
     it "formats keys" do
