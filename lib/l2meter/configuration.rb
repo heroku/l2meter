@@ -8,7 +8,7 @@ module L2meter
 
     def key_formatter
       @key_formatter ||= ->(key) do
-        key.to_s.strip.downcase.gsub(/[^-a-z\d]+/, ?-)
+        key.to_s.strip.downcase.gsub(/[^-a-z\d.]+/, ?-)
       end
     end
 

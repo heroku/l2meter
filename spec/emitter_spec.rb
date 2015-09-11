@@ -24,6 +24,16 @@ describe L2meter::Emitter do
       expect(output).to eq("foo=bar\n")
     end
 
+    it "allows periods in keys by default" do
+      subject.log "foo.bar" => 1
+      expect(output).to eq("foo.bar=1\n")
+    end
+
+    it "logs key-value pairs with numbers as keys" do
+      subject.log 123 => "bar", 123.45 => "foo"
+      expect(output).to eq("123=bar 123.45=foo\n")
+    end
+
     it "logs arguments and key-value pairs" do
       subject.log :foo, :bar, fizz: :buzz
       expect(output).to eq("foo bar fizz=buzz\n")
