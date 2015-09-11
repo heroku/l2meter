@@ -54,7 +54,7 @@ module L2meter
 
       tokens.sort! if configuration.sort?
 
-      configuration.output.puts tokens.join(" ")
+      configuration.output.print tokens.join(" ") + "\n"
     end
 
     def wrap(params)
