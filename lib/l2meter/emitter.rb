@@ -28,6 +28,12 @@ module L2meter
       configuration.output = output
     end
 
+    def measure(metric, value, unit: nil)
+      metric = ["measure", metric] * ?#
+      metric = [metric, unit].compact * ?.
+      write Hash[metric, value]
+    end
+
     def context(hash_or_proc)
       old_context = @current_context
       @current_context = hash_or_proc

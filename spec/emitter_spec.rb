@@ -134,4 +134,16 @@ describe L2meter::Emitter do
       expect(output).to eq("foo=abcd bar=bar\n")
     end
   end
+
+  describe "#measure" do
+    it "outputs message in a special measure format" do
+      subject.measure "thing", 10
+      expect(output).to eq("measure#thing=10\n")
+    end
+
+    it "supports unit argument" do
+      subject.measure "query", 200, unit: :ms
+      expect(output).to eq("measure#query.ms=200\n")
+    end
+  end
 end
