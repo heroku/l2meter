@@ -29,9 +29,12 @@ module L2meter
     end
 
     def measure(metric, value, unit: nil)
-      metric = ["measure", metric] * ?#
       metric = [metric, unit].compact * ?.
-      write Hash[metric, value]
+      write_with_prefix :measure, metric, value
+    end
+
+    def count(metric, value=1)
+      write_with_prefix :count, metric, value
     end
 
     def context(hash_or_proc)
@@ -79,6 +82,10 @@ module L2meter
       tokens.sort! if configuration.sort?
 
       configuration.output.print tokens.join(" ") + "\n"
+    end
+
+    def write_with_prefix(prefix, key, value)
+      write Hash["#{prefix}##{key}", value]
     end
 
     def wrap(params)

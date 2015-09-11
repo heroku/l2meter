@@ -146,4 +146,16 @@ describe L2meter::Emitter do
       expect(output).to eq("measure#query.ms=200\n")
     end
   end
+
+  describe "#count" do
+    it "outputs message in a special count format" do
+      subject.count :thing, 123
+      expect(output).to eq("count#thing=123\n")
+    end
+
+    it "uses 1 as a default value" do
+      subject.count :thing
+      expect(output).to eq("count#thing=1\n")
+    end
+  end
 end
