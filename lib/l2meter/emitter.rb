@@ -10,7 +10,8 @@ module L2meter
       params = Hash === args.last ? args.pop : {}
       args = args.map { |key| [ key, true ] }.to_h
       params = args.merge(params)
-      params = context.merge(params)
+      params = configuration_context.merge(params)
+      params = current_context.merge(params)
 
       if block_given?
         wrap params, &Proc.new
@@ -27,10 +28,27 @@ module L2meter
       configuration.output = output
     end
 
+    def context(hash_or_proc)
+      old_context = @current_context
+      @current_context = hash_or_proc
+      yield
+    ensure
+      @current_context = old_context
+    end
+
     private
 
-    def context
+    def configuration_context
       configuration.get_context
+    end
+
+    def current_context
+      return {} unless defined?(@current_context)
+      if @current_context.respond_to?(:call)
+        @current_context.call.to_h
+      else
+        @current_context.to_h
+      end
     end
 
     def format_value(value)

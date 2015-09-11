@@ -114,4 +114,24 @@ describe L2meter::Emitter do
       expect(output).to be_empty
     end
   end
+
+  describe "#context" do
+    it "supports setting context for a block" do
+      subject.context foo: "foo" do
+        subject.log bar: :bar
+      end
+
+      expect(output).to eq("foo=foo bar=bar\n")
+    end
+
+    it "supports dynamic context" do
+      client = double
+      expect(client).to receive(:get_id).and_return("abcd")
+      subject.context ->{{ foo: client.get_id }} do
+        subject.log bar: :bar
+      end
+
+      expect(output).to eq("foo=abcd bar=bar\n")
+    end
+  end
 end
