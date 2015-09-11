@@ -136,7 +136,7 @@ describe L2meter::Emitter do
   end
 
   describe "#measure" do
-    it "outputs message in a special measure format" do
+    it "outputs a message with a measure prefix" do
       subject.measure "thing", 10
       expect(output).to eq("measure#thing=10\n")
     end
@@ -148,7 +148,7 @@ describe L2meter::Emitter do
   end
 
   describe "#count" do
-    it "outputs message in a special count format" do
+    it "outputs a message with a count prefix" do
       subject.count :thing, 123
       expect(output).to eq("count#thing=123\n")
     end
@@ -156,6 +156,13 @@ describe L2meter::Emitter do
     it "uses 1 as a default value" do
       subject.count :thing
       expect(output).to eq("count#thing=1\n")
+    end
+  end
+
+  describe "#unique" do
+    it "outputs a message with a unique prefix" do
+      subject.unique "registration", "user@example.com"
+      expect(output).to eq("unique#registration=user@example.com\n")
     end
   end
 end

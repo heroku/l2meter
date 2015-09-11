@@ -37,6 +37,10 @@ module L2meter
       write_with_prefix :count, metric, value
     end
 
+    def unique(metric, value)
+      write_with_prefix :unique, metric, value
+    end
+
     def context(hash_or_proc)
       old_context = @current_context
       @current_context = hash_or_proc
