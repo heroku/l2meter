@@ -34,6 +34,11 @@ module L2meter
       log_with_prefix :measure, metric, value
     end
 
+    def sample(metric, value, unit: nil)
+      metric = [metric, unit].compact * ?.
+      log_with_prefix :sample, metric, value
+    end
+
     def count(metric, value=1)
       log_with_prefix :count, metric, value
     end

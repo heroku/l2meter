@@ -194,6 +194,32 @@ describe L2meter::Emitter do
     end
   end
 
+  describe "#sample" do
+    it "outputs a message with a sample prefix" do
+      subject.sample "thing", 10
+      expect(output).to eq("sample#thing=10\n")
+    end
+
+    it "supports unit argument" do
+      subject.sample "query", 200, unit: :ms
+      expect(output).to eq("sample#query.ms=200\n")
+    end
+
+    it "includes source" do
+      configuration.source = "us-west"
+      subject.sample "query", 200, unit: :ms
+      expect(output).to eq("source=us-west sample#query.ms=200\n")
+    end
+
+    it "respects context" do
+      subject.context foo: :bar do
+        subject.sample "baz", 10
+      end
+
+      expect(output).to eq("foo=bar sample#baz=10\n")
+    end
+  end
+
   describe "#count" do
     it "outputs a message with a count prefix" do
       subject.count :thing, 123
