@@ -112,7 +112,7 @@ metrics = L2meter.build do |config|
 end
 ```
 
-These are available configuration:
+Here's the list of all configurable things:
 
 #### Global context
 
