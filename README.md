@@ -108,7 +108,7 @@ L2meter supports configurtion. Here's how you cna configure things:
 
 ```ruby
 metrics = L2meter.build do |config|
-  # configuration happen here
+  # configuration happens here
 end
 ```
 
