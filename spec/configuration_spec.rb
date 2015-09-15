@@ -44,28 +44,6 @@ describe L2meter::Configuration do
     expect(subject.sort?).to eq(true)
   end
 
-  it "supports context" do
-    expect(subject.get_context).to eq({})
-  end
-
-  it "supports settings static context" do
-    subject.context = { foo: "bar" }
-    expect(subject.get_context).to eq(foo: "bar")
-  end
-
-  it "supports setting as lambda" do
-    counter = double
-    expect(counter).to receive(:call).and_return(1).ordered
-    expect(counter).to receive(:call).and_return(2).ordered
-
-    subject.context do
-      { hello: counter.call }
-    end
-
-    expect(subject.get_context).to eq(hello: 1)
-    expect(subject.get_context).to eq(hello: 2)
-  end
-
   it "has a default source value" do
     expect(subject.source).to be_nil
   end

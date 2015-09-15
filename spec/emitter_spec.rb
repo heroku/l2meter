@@ -166,6 +166,16 @@ describe L2meter::Emitter do
 
       expect(output).to eq("foo=abcd bar=bar\n")
     end
+
+    it "supports nested context" do
+      subject.context foo: :foo do
+        subject.context ->{{ bar: :bar }} do
+          subject.log hello: :world
+        end
+      end
+
+      expect(output).to eq("foo=foo bar=bar hello=world\n")
+    end
   end
 
   describe "#measure" do

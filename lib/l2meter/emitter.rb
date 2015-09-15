@@ -10,7 +10,6 @@ module L2meter
       params = Hash === args.last ? args.pop : {}
       args = args.map { |key| [ key, true ] }.to_h
       params = args.merge(params)
-      params = configuration_context.merge(params)
       params = current_context.merge(params)
       params = merge_source(params)
 
@@ -48,30 +47,27 @@ module L2meter
     end
 
     def context(hash_or_proc)
-      old_context = @current_context
-      @current_context = hash_or_proc
+      configuration_contexts.push hash_or_proc
       yield
     ensure
-      @current_context = old_context
+      configuration_contexts.pop
     end
 
     private
+
+    def configuration_contexts
+      configuration.contexts
+    end
 
     def merge_source(params)
       source = configuration.source
       source ? { source: source }.merge(params) : params
     end
 
-    def configuration_context
-      configuration.get_context
-    end
-
     def current_context
-      return {} unless defined?(@current_context)
-      if @current_context.respond_to?(:call)
-        @current_context.call.to_h
-      else
-        @current_context.to_h
+      configuration_contexts.inject({}) do |result, c|
+        current = c.respond_to?(:call) ? c.call.to_h : c.clone
+        result.merge(current)
       end
     end
 
