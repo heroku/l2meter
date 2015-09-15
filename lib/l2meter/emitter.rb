@@ -12,6 +12,7 @@ module L2meter
       params = args.merge(params)
       params = configuration_context.merge(params)
       params = current_context.merge(params)
+      params = merge_source(params)
 
       if block_given?
         wrap params, &Proc.new
@@ -30,15 +31,15 @@ module L2meter
 
     def measure(metric, value, unit: nil)
       metric = [metric, unit].compact * ?.
-      write_with_prefix :measure, metric, value
+      log_with_prefix :measure, metric, value
     end
 
     def count(metric, value=1)
-      write_with_prefix :count, metric, value
+      log_with_prefix :count, metric, value
     end
 
     def unique(metric, value)
-      write_with_prefix :unique, metric, value
+      log_with_prefix :unique, metric, value
     end
 
     def context(hash_or_proc)
@@ -50,6 +51,11 @@ module L2meter
     end
 
     private
+
+    def merge_source(params)
+      source = configuration.source
+      source ? { source: source }.merge(params) : params
+    end
 
     def configuration_context
       configuration.get_context
@@ -78,14 +84,8 @@ module L2meter
       end
     end
 
-    def prepare_params(params)
-      params = format_keys(params)
-      source = configuration.source
-      source ? { source: source }.merge(params) : params
-    end
-
     def write(params)
-      tokens = prepare_params(params).map do |key, value|
+      tokens = format_keys(params).map do |key, value|
         value == true ? key : [ key, format_value(value) ] * ?=
       end
 
@@ -94,8 +94,8 @@ module L2meter
       configuration.output.print tokens.join(" ") + "\n"
     end
 
-    def write_with_prefix(prefix, key, value)
-      write Hash["#{prefix}##{key}", value]
+    def log_with_prefix(prefix, key, value)
+      log Hash["#{prefix}##{key}", value]
     end
 
     def wrap(params)

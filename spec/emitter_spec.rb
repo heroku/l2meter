@@ -184,6 +184,14 @@ describe L2meter::Emitter do
       subject.measure "query", 200, unit: :ms
       expect(output).to eq("source=us-west measure#query.ms=200\n")
     end
+
+    it "respects context" do
+      subject.context foo: :bar do
+        subject.measure "baz", 10
+      end
+
+      expect(output).to eq("foo=bar measure#baz=10\n")
+    end
   end
 
   describe "#count" do
@@ -202,6 +210,14 @@ describe L2meter::Emitter do
       subject.count :thing
       expect(output).to eq("source=us-west count#thing=1\n")
     end
+
+    it "respects context" do
+      subject.context foo: :bar do
+        subject.count "baz", 10
+      end
+
+      expect(output).to eq("foo=bar count#baz=10\n")
+    end
   end
 
   describe "#unique" do
@@ -214,6 +230,14 @@ describe L2meter::Emitter do
       configuration.source = "us-west"
       subject.unique "registration", "user@example.com"
       expect(output).to eq("source=us-west unique#registration=user@example.com\n")
+    end
+
+    it "respects context" do
+      subject.context foo: :bar do
+        subject.unique "registration", "user@example.com"
+      end
+
+      expect(output).to eq("foo=bar unique#registration=user@example.com\n")
     end
   end
 end
