@@ -29,13 +29,11 @@ module L2meter
     end
 
     def measure(metric, value, unit: nil)
-      metric = [metric, unit].compact * ?.
-      log_with_prefix :measure, metric, value
+      log_with_prefix :measure, metric, value, unit: unit
     end
 
     def sample(metric, value, unit: nil)
-      metric = [metric, unit].compact * ?.
-      log_with_prefix :sample, metric, value
+      log_with_prefix :sample, metric, value, unit: unit
     end
 
     def count(metric, value=1)
@@ -95,8 +93,9 @@ module L2meter
       configuration.output.print tokens.join(" ") + "\n"
     end
 
-    def log_with_prefix(prefix, key, value)
-      log Hash["#{prefix}##{key}", value]
+    def log_with_prefix(method, key, value, unit: nil)
+      key = [configuration.prefix, key, unit].compact * ?.
+      log Hash["#{method}##{key}", value]
     end
 
     def wrap(params)

@@ -185,44 +185,50 @@ describe L2meter::Emitter do
 
   describe "#measure" do
     it "outputs a message with a measure prefix" do
-      subject.measure "thing", 10
+      subject.measure :thing, 10
       expect(output).to eq("measure#thing=10\n")
     end
 
     it "supports unit argument" do
-      subject.measure "query", 200, unit: :ms
+      subject.measure :query, 200, unit: :ms
       expect(output).to eq("measure#query.ms=200\n")
     end
 
     it "includes source" do
       configuration.source = "us-west"
-      subject.measure "query", 200, unit: :ms
+      subject.measure :query, 200, unit: :ms
       expect(output).to eq("source=us-west measure#query.ms=200\n")
     end
 
     it "respects context" do
       subject.context foo: :bar do
-        subject.measure "baz", 10
+        subject.measure :baz, 10
       end
 
       expect(output).to eq("foo=bar measure#baz=10\n")
+    end
+
+    it "respects prefix" do
+      configuration.prefix = "my-app"
+      subject.measure :query, 200, unit: :ms
+      expect(output).to eq("measure#my-app.query.ms=200\n")
     end
   end
 
   describe "#sample" do
     it "outputs a message with a sample prefix" do
-      subject.sample "thing", 10
+      subject.sample :thing, 10
       expect(output).to eq("sample#thing=10\n")
     end
 
     it "supports unit argument" do
-      subject.sample "query", 200, unit: :ms
+      subject.sample :query, 200, unit: :ms
       expect(output).to eq("sample#query.ms=200\n")
     end
 
     it "includes source" do
       configuration.source = "us-west"
-      subject.sample "query", 200, unit: :ms
+      subject.sample :query, 200, unit: :ms
       expect(output).to eq("source=us-west sample#query.ms=200\n")
     end
 
@@ -232,6 +238,12 @@ describe L2meter::Emitter do
       end
 
       expect(output).to eq("foo=bar sample#baz=10\n")
+    end
+
+    it "respects prefix" do
+      configuration.prefix = "my-app"
+      subject.sample :thing, 10
+      expect(output).to eq("sample#my-app.thing=10\n")
     end
   end
 
@@ -254,31 +266,43 @@ describe L2meter::Emitter do
 
     it "respects context" do
       subject.context foo: :bar do
-        subject.count "baz", 10
+        subject.count :baz, 10
       end
 
       expect(output).to eq("foo=bar count#baz=10\n")
+    end
+
+    it "respects prefix" do
+      configuration.prefix = "my-app"
+      subject.count :thing
+      expect(output).to eq("count#my-app.thing=1\n")
     end
   end
 
   describe "#unique" do
     it "outputs a message with a unique prefix" do
-      subject.unique "registration", "user@example.com"
+      subject.unique :registration, "user@example.com"
       expect(output).to eq("unique#registration=user@example.com\n")
     end
 
     it "includes source" do
       configuration.source = "us-west"
-      subject.unique "registration", "user@example.com"
+      subject.unique :registration, "user@example.com"
       expect(output).to eq("source=us-west unique#registration=user@example.com\n")
     end
 
     it "respects context" do
       subject.context foo: :bar do
-        subject.unique "registration", "user@example.com"
+        subject.unique :registration, "user@example.com"
       end
 
       expect(output).to eq("foo=bar unique#registration=user@example.com\n")
+    end
+
+    it "respects prefix" do
+      configuration.prefix = "my-app"
+      subject.unique :registration, "bob@example.com"
+      expect(output).to eq("unique#my-app.registration=bob@example.com\n")
     end
   end
 end

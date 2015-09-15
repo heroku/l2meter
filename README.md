@@ -159,6 +159,17 @@ config.source = "production"
 metrics.log foo: :bar # => source=production foo=bar
 ```
 
+#### Prefix
+
+Prefix allows namespacing your measure/count/unique/sample calls.
+
+```ruby
+config.prefix = "my-app"
+
+# ...
+
+metrics.count :users, 100500 # => count#my-app.users=100500
+
 ## Silence
 
 There's a way to temporary silence the log emitter. This might be userful for

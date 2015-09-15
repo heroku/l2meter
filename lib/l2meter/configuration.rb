@@ -1,7 +1,7 @@
 module L2meter
   class Configuration
     attr_writer :output
-    attr_accessor :source
+    attr_accessor :source, :prefix
     attr_reader :contexts
 
     def initialize

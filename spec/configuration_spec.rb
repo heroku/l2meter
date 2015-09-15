@@ -52,4 +52,13 @@ describe L2meter::Configuration do
     subject.source = "hello"
     expect(subject.source).to eq("hello")
   end
+
+  it "has a default prefix value" do
+    expect(subject.prefix).to be_nil
+  end
+
+  it "allows setting prefix" do
+    subject.prefix = "hello"
+    expect(subject.prefix).to eq("hello")
+  end
 end
