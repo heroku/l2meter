@@ -169,6 +169,7 @@ config.prefix = "my-app"
 # ...
 
 metrics.count :users, 100500 # => count#my-app.users=100500
+```
 
 ## Silence
 
