@@ -102,12 +102,13 @@ module L2meter
     def wrap(params)
       time_at_start = Time.now
       write params.merge(at: :start)
-      yield
+      result = yield
     rescue => error
       status = { at: :exception, exception: error.class.to_s, message: error.message.strip }
       raise
     else
       status = { at: :finish }
+      result
     ensure
       elapsed = Time.now - time_at_start
       status.merge! elapsed: "%.4fs" % elapsed

@@ -83,6 +83,11 @@ describe L2meter::Emitter do
       expect(output).to eq("foo at=start\nbar\nfoo at=finish elapsed=3.0000s\n")
     end
 
+    it "returns the block return value" do
+      block = ->{ "return value" }
+      expect(subject.log(foo: :bar, &block)).to eq("return value")
+    end
+
     it "logs exception inside the block" do
       action = -> do
         Timecop.freeze do
