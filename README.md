@@ -104,7 +104,7 @@ metrics.unique :user, "bob@example.com"    # => unique#user=bob@example.com
 
 ### Configuration
 
-L2meter supports configurtion. Here's how you cna configure things:
+L2meter supports configuration. Here's how you can configure things:
 
 ```ruby
 metrics = L2meter.build do |config|
