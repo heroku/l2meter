@@ -93,7 +93,7 @@ Some other l2met-specific methods are supported.
 metrics.count :user_registered             # => count#user-registered=1
 metrics.count :registered_users, 10        # => count#registered-users=10
 
-metrics.measure :connection_count, 20,     # => measure#connection-count=235
+metrics.measure :connection_count, 20      # => measure#connection-count=20
 metrics.measure :db_query, 235, unit: :ms, # => measure#db-query.ms=235
 
 metrics.sample :connection_count, 20,      # => sample#connection-count=235
