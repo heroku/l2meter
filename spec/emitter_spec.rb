@@ -181,6 +181,24 @@ describe L2meter::Emitter do
 
       expect(output).to eq("bar=bar foo=foo hello=world\n")
     end
+
+    it "prefers internal context over the external one" do
+      subject.context foo: :foo do
+        subject.context foo: :bar do
+          subject.log "hello world"
+        end
+      end
+
+      expect(output).to eq("foo=bar hello-world\n")
+    end
+
+    it "prefers direct logging values over context" do
+      subject.context foo: :foo do
+        subject.log foo: :bar
+      end
+
+      expect(output).to eq("foo=bar\n")
+    end
   end
 
   describe "#measure" do

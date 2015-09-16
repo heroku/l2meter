@@ -63,10 +63,10 @@ module L2meter
     end
 
     def current_context
-      configuration_contexts.reverse.inject({}) do |result, c|
+      configuration_contexts.inject({}) do |result, c|
         current = c.respond_to?(:call) ? c.call.to_h : c.clone
         result.merge(current)
-      end
+      end.to_a.reverse.to_h
     end
 
     def format_value(value)
