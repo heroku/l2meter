@@ -179,7 +179,7 @@ describe L2meter::Emitter do
         end
       end
 
-      expect(output).to eq("foo=foo bar=bar hello=world\n")
+      expect(output).to eq("bar=bar foo=foo hello=world\n")
     end
   end
 
