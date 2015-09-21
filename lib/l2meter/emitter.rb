@@ -102,7 +102,10 @@ module L2meter
       time_at_start = Time.now
       write params.merge(at: :start)
       result = yield
-    rescue => error
+    rescue Exception => error
+      # Rescuing Exception class is a well-known anitpattern, I know. But in
+      # this case we're just setting a variable and re-raising immidiately,
+      # which should probably be fine in most cases.
       status = { at: :exception, exception: error.class.to_s, message: error.message.strip }
       raise
     else

@@ -94,13 +94,18 @@ describe L2meter::Emitter do
           subject.log :foo do
             subject.log :bar
             Timecop.freeze Time.now + 3
-            raise "hello world"
+
+            # We deliberately emit then lowest level possible Exception class
+            # to make sure l2meter won't blow up on it and report properly. We
+            # also make sure the exception is re-raised after reporting is
+            # done.
+            raise Exception, "hello world"
           end
         end
       end
 
-      expect(&action).to raise_error(RuntimeError, "hello world")
-      expect(output).to eq("foo at=start\nbar\nfoo at=exception exception=RuntimeError message=\"hello world\" elapsed=3.0000s\n")
+      expect(&action).to raise_error(Exception, "hello world")
+      expect(output).to eq("foo at=start\nbar\nfoo at=exception exception=Exception message=\"hello world\" elapsed=3.0000s\n")
     end
 
     it "logs context" do
