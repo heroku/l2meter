@@ -127,7 +127,7 @@ module L2meter
       result, exception, elapsed = execute_with_elapsed(&Proc.new)
 
       if exception
-        status = { at: :exception, exception: exception.class.name, message: exception.message }
+        status = { at: :exception, exception: exception.class.name, message: exception.message.strip }
       else
         status = { at: :finish }
       end
