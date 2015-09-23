@@ -4,20 +4,25 @@ module L2meter
 
     def initialize(configuration: Configuration.new)
       @configuration = configuration
+      @start_times = []
     end
 
     def log(*args)
-      params = Hash === args.last ? args.pop : {}
-      args = args.map { |key| [ key, true ] }.to_h
-      params = args.merge(params)
-      params = current_context.merge(params)
-      params = merge_source(params)
+      params = transform_log_args(*args)
+      params = merge_contexts(params)
 
       if block_given?
         wrap params, &Proc.new
       else
         write params
       end
+    end
+
+    def with_elapsed
+      @start_times << Time.now
+      yield
+    ensure
+      @start_times.pop
     end
 
     def silence
@@ -53,13 +58,31 @@ module L2meter
 
     private
 
-    def configuration_contexts
-      configuration.contexts
+    def transform_log_args(*args)
+      params = Hash === args.last ? args.pop : {}
+      args = args.map { |key| [ key, true ] }.to_h
+      args.merge(params)
     end
 
-    def merge_source(params)
+    def merge_contexts(params)
+      params = current_context.merge(params)
       source = configuration.source
-      source ? { source: source }.merge(params) : params
+      params = { source: source }.merge(params) if source
+
+      if start_time = @start_times.last
+        elapsed = Time.now - start_time
+        params = merge_elapsed(elapsed, params)
+      end
+
+      params
+    end
+
+    def merge_elapsed(elapsed, params)
+      params.merge(elapsed: "%.4fs" % elapsed)
+    end
+
+    def configuration_contexts
+      configuration.contexts
     end
 
     def current_context
@@ -99,22 +122,33 @@ module L2meter
     end
 
     def wrap(params)
-      time_at_start = Time.now
       write params.merge(at: :start)
-      result = yield
-    rescue Exception => error
-      # Rescuing Exception class is a well-known anitpattern, I know. But in
-      # this case we're just setting a variable and re-raising immidiately,
-      # which should probably be fine in most cases.
-      status = { at: :exception, exception: error.class.to_s, message: error.message.strip }
-      raise
-    else
-      status = { at: :finish }
-      result
-    ensure
-      elapsed = Time.now - time_at_start
-      status.merge! elapsed: "%.4fs" % elapsed
+
+      result, exception, elapsed = execute_with_elapsed(&Proc.new)
+
+      if exception
+        status = { at: :exception, exception: exception.class.name, message: exception.message }
+      else
+        status = { at: :finish }
+      end
+
+      status = merge_elapsed(elapsed, status)
+
       write params.merge(status)
+
+      raise exception if exception
+
+      result
+    end
+
+    def execute_with_elapsed
+      time_at_start = Time.now
+      caught_exception = nil
+      result = yield
+    rescue Exception => exception
+      caught_exception = exception
+    ensure
+      return [ result, caught_exception, Time.now - time_at_start ]
     end
   end
 end

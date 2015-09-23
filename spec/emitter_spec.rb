@@ -148,6 +148,23 @@ describe L2meter::Emitter do
     end
   end
 
+  describe "#with_elapsed" do
+    it "appends elapsed to every log emitter in the block" do
+      Timecop.freeze do
+        subject.with_elapsed do
+          Timecop.freeze Time.now + 3
+          subject.log :foo
+          Timecop.freeze Time.now + 3
+          subject.log :bar
+        end
+
+        subject.log :baz
+      end
+
+      expect(output).to eq("foo elapsed=3.0000s\nbar elapsed=6.0000s\nbaz\n")
+    end
+  end
+
   describe "#silence" do
     it "prevents from loggin to the output" do
       subject.silence do
