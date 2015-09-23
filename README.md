@@ -102,6 +102,17 @@ metrics.sample :db_query, 235, unit: :ms,  # => sample#db-query.ms=235
 metrics.unique :user, "bob@example.com"    # => unique#user=bob@example.com
 ```
 
+L2meter also allows to append elapsed time to your log messages automatically.
+
+```ruby
+metrics.with_elapsed do
+  do_work_step_1
+  log :step_1_done # => step-1-done elapsed=1.2345s
+  do_work_step_2
+  log :step_2_done # => step-2-done elapsed=2.3456s
+end
+```
+
 ### Configuration
 
 L2meter supports configuration. Here's how you can configure things:
