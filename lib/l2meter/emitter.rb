@@ -5,6 +5,8 @@ module L2meter
     def initialize(configuration: Configuration.new)
       @configuration = configuration
       @start_times = []
+      @contexts = []
+      @outputs = []
     end
 
     def log(*args)
@@ -26,11 +28,10 @@ module L2meter
     end
 
     def silence
-      output = configuration.output
-      configuration.output = NullObject.new
+      @outputs.push NullObject.new
       yield
     ensure
-      configuration.output = output
+      @outputs.pop
     end
 
     def measure(metric, value, unit: nil)
@@ -50,10 +51,10 @@ module L2meter
     end
 
     def context(hash_or_proc)
-      configuration_contexts.push hash_or_proc
+      @contexts.push hash_or_proc
       yield
     ensure
-      configuration_contexts.pop
+      @contexts.pop
     end
 
     private
@@ -81,12 +82,8 @@ module L2meter
       params.merge(elapsed: "%.4fs" % elapsed)
     end
 
-    def configuration_contexts
-      configuration.contexts
-    end
-
     def current_context
-      configuration_contexts.inject({}) do |result, c|
+      contexts_queue.inject({}) do |result, c|
         current = c.respond_to?(:call) ? c.call.to_h : c.clone
         result.merge(current)
       end.to_a.reverse.to_h
@@ -113,7 +110,7 @@ module L2meter
 
       tokens.sort! if configuration.sort?
 
-      configuration.output.print tokens.join(" ") + "\n"
+      output_queue.last.print tokens.join(" ") + "\n"
     end
 
     def log_with_prefix(method, key, value, unit: nil)
@@ -149,6 +146,14 @@ module L2meter
       caught_exception = exception
     ensure
       return [ result, caught_exception, Time.now - time_at_start ]
+    end
+
+    def contexts_queue
+      [ configuration.context, *@contexts ].compact
+    end
+
+    def output_queue
+      [ configuration.output, *@outputs ].compact
     end
   end
 end

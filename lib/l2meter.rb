@@ -11,5 +11,6 @@ module L2meter
     Emitter.new.tap do |emitter|
       yield emitter.configuration if block_given?
     end
+
   end
 end

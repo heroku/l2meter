@@ -2,7 +2,7 @@ module L2meter
   class Configuration
     attr_writer :output
     attr_accessor :source, :prefix
-    attr_reader :contexts, :key_formatter, :value_formatter, :output
+    attr_reader :context, :key_formatter, :value_formatter, :output
 
     DEFAULT_KEY_FORMATTER = ->(key) do
       key.to_s.strip.downcase.gsub(/[^-a-z\d.#]+/, ?-)
@@ -16,7 +16,6 @@ module L2meter
     private_constant :DEFAULT_KEY_FORMATTER
 
     def initialize
-      @contexts = []
       @sort = false
       @key_formatter = DEFAULT_KEY_FORMATTER
       @value_formatter = DEFAULT_VALUE_FORMATTER
@@ -39,12 +38,16 @@ module L2meter
       @sort = !!value
     end
 
-    def context(&block)
-      @contexts = [block]
+    def context
+      if block_given?
+        @context = Proc.new
+      else
+        @context
+      end
     end
 
     def context=(block_or_value)
-      @contexts = [block_or_value]
+      @context = block_or_value
     end
   end
 end
