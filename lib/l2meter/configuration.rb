@@ -13,7 +13,7 @@ module L2meter
       value =~ /\s/ ? value.inspect : value
     end
 
-    private_constant :DEFAULT_KEY_FORMATTER
+    private_constant :DEFAULT_KEY_FORMATTER, :DEFAULT_VALUE_FORMATTER
 
     def initialize
       @sort = false
