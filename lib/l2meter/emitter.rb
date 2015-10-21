@@ -57,6 +57,10 @@ module L2meter
       @contexts.pop
     end
 
+    def clone
+      self.class.new(configuration: configuration)
+    end
+
     private
 
     def transform_log_args(*args)

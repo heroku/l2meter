@@ -6,11 +6,11 @@ module L2meter
   autoload :Configuration, "l2meter/configuration"
   autoload :Emitter,       "l2meter/emitter"
   autoload :NullObject,    "l2meter/null_object"
+  autoload :ThreadSafe,    "l2meter/thread_safe"
 
-  def build
-    Emitter.new.tap do |emitter|
-      yield emitter.configuration if block_given?
-    end
-
+  def build(configuration: Configuration.new)
+    yield configuration if block_given?
+    emitter = Emitter.new(configuration: configuration.freeze)
+    ThreadSafe.new(emitter)
   end
 end

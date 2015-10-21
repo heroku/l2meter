@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe L2meter::Emitter do
   let(:configuration) { L2meter::Configuration.new }
-  subject { described_class.new(configuration: configuration) }
+  subject { L2meter.build(configuration: configuration) }
   let(:io) { StringIO.new }
   let(:output) { io.tap(&:rewind).read }
 
