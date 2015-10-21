@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe L2meter::Emitter do
   let(:configuration) { L2meter::Configuration.new }
-  subject { L2meter.build(configuration: configuration) }
+  subject { described_class.new(configuration: configuration) }
   let(:io) { StringIO.new }
   let(:output) { io.tap(&:rewind).read }
 
@@ -343,6 +343,20 @@ describe L2meter::Emitter do
       configuration.prefix = "my-app"
       subject.unique :registration, "bob@example.com"
       expect(output).to eq("unique#my-app.registration=bob@example.com\n")
+    end
+  end
+
+  describe "#clone" do
+    it "returns new emitter with same configuration" do
+      subject # noop call to fire up lazy initialization
+
+      emitter_double = double(described_class.name)
+
+      expect(described_class).to receive(:new)
+        .with(configuration: configuration)
+        .and_return(emitter_double)
+
+      expect(subject.clone).to eq(emitter_double)
     end
   end
 end
