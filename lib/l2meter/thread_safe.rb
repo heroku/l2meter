@@ -6,7 +6,7 @@ module L2meter
   class ThreadSafe
     extend Forwardable
 
-    EMITTER_METHODS = %i[
+    PROXY_CLONE_METHODS = %i[
       configuration
       context
       count
@@ -18,13 +18,19 @@ module L2meter
       with_elapsed
     ]
 
-    private_constant :EMITTER_METHODS
+    PROXY_DIRECT_METHODS = %i[
+      silence!
+      unsilence!
+    ]
+
+    private_constant :PROXY_CLONE_METHODS, :PROXY_DIRECT_METHODS
 
     def initialize(emitter)
       @emitter = emitter.freeze
     end
 
-    def_delegators :current_emitter, *EMITTER_METHODS
+    def_delegators :current_emitter, *PROXY_CLONE_METHODS
+    def_delegators :emitter, *PROXY_DIRECT_METHODS
 
     private
 

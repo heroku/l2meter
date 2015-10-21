@@ -175,6 +175,26 @@ describe L2meter::Emitter do
     end
   end
 
+  describe "#silence!" do
+    it "silences the emitter" do
+      subject.log :foo
+      subject.silence!
+      subject.log :bar
+      expect(output).to eq("foo\n")
+    end
+  end
+
+  describe "#unsilence!" do
+    it "disables previously set silence flag" do
+      subject.log :foo
+      subject.silence!
+      subject.log :bar
+      subject.unsilence!
+      subject.log :bazz
+      expect(output).to eq("foo\nbazz\n")
+    end
+  end
+
   describe "#context" do
     it "supports setting context for a block" do
       subject.context foo: "foo" do

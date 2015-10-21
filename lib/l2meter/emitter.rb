@@ -28,9 +28,17 @@ module L2meter
     end
 
     def silence
-      @outputs.push NullObject.new
+      silence!
       yield
     ensure
+      unsilence!
+    end
+
+    def silence!
+      @outputs.push NullObject.new
+    end
+
+    def unsilence!
       @outputs.pop
     end
 
