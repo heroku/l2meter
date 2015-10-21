@@ -206,3 +206,14 @@ RSpec.configure do |config|
   end
 end
 ```
+
+Note that this code will only silence logger in the current thread. It'll
+still produce ouput if you fire up a new thread. To silcene it completely,
+use `silence!` method, like so:
+
+```ruby
+# spec/spec_helper.rb
+Metrics.silence!
+```
+
+You can unfo the effect of `silence!` by calling `unsilence!`.
