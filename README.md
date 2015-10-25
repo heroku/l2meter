@@ -1,7 +1,7 @@
 # L2meter
 [![Gem Version](https://img.shields.io/gem/v/l2meter.svg)](https://rubygems.org/gems/l2meter)
-[![Build Status](https://img.shields.io/travis/heroku/l2meter.svg)](http://travis-ci.org/heroku/l2meter)
-[![Code Climate](https://img.shields.io/codeclimate/github/heroku/l2meter.svg)](https://codeclimate.com/github/heroku/l2meter)
+[![Build Status](https://img.shields.io/travis/rwz/l2meter.svg)](http://travis-ci.org/rwz/l2meter)
+[![Code Climate](https://img.shields.io/codeclimate/github/rwz/l2meter.svg)](https://codeclimate.com/github/rwz/l2meter)
 
 L2meter is a little gem that helps you build loggers that outputs things in
 l2met-friendly format.
