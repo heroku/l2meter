@@ -208,12 +208,10 @@ end
 ```
 
 Note that this code will only silence logger in the current thread. It'll
-still produce ouput if you fire up a new thread. To silcene it completely,
-use `silence!` method, like so:
+still produce ouput if you fire up a new thread. To silence it completely,
+use `disable!` method, like so:
 
 ```ruby
 # spec/spec_helper.rb
-Metrics.silence!
+Metrics.disable!
 ```
-
-You can unfo the effect of `silence!` by calling `unsilence!`.

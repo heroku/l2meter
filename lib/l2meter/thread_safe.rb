@@ -6,7 +6,7 @@ module L2meter
   class ThreadSafe
     extend Forwardable
 
-    PROXY_CLONE_METHODS = %i[
+    EMITTER_METHODS = %i[
       configuration
       context
       count
@@ -14,30 +14,38 @@ module L2meter
       measure
       sample
       silence
+      silence!
       unique
+      unsilence!
       with_elapsed
     ]
 
-    PROXY_DIRECT_METHODS = %i[
-      silence!
-      unsilence!
-    ]
-
-    private_constant :PROXY_CLONE_METHODS, :PROXY_DIRECT_METHODS
+    private_constant :EMITTER_METHODS
 
     def initialize(emitter)
       @emitter = emitter.freeze
     end
 
-    def_delegators :current_emitter, *PROXY_CLONE_METHODS
-    def_delegators :emitter, *PROXY_DIRECT_METHODS
+    def_delegators :receiver, *EMITTER_METHODS
+
+    def disable!
+      @disabled = true
+    end
 
     private
 
     attr_reader :emitter
 
+    def receiver
+      @disabled ? null_emitter : current_emitter
+    end
+
     def current_emitter
       Thread.current[thread_key] ||= emitter.clone
+    end
+
+    def null_emitter
+      @null_emitter ||= NullObject.new
     end
 
     def thread_key
