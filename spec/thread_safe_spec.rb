@@ -30,5 +30,15 @@ describe L2meter::ThreadSafe do
       subject.disable!
       subject.log :foo
     end
+
+    it "executes the blocks in disabled mode" do
+      performed = false
+      subject.disable!
+      subject.log foo: :bar do
+        performed = true
+      end
+
+      expect(performed).to eq(true)
+    end
   end
 end
