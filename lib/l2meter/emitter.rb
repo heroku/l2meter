@@ -153,11 +153,9 @@ module L2meter
     def execute_with_elapsed
       time_at_start = Time.now
       caught_exception = nil
-      result = yield
+      [ yield, nil, Time.now - time_at_start ]
     rescue Exception => exception
-      caught_exception = exception
-    ensure
-      return [ result, caught_exception, Time.now - time_at_start ]
+      [ nil, exception, Time.now - time_at_start ]
     end
 
     def contexts_queue
