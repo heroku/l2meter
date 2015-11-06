@@ -152,7 +152,6 @@ module L2meter
 
     def execute_with_elapsed
       time_at_start = Time.now
-      caught_exception = nil
       [ yield, nil, Time.now - time_at_start ]
     rescue Exception => exception
       [ nil, exception, Time.now - time_at_start ]
