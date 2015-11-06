@@ -83,6 +83,17 @@ describe L2meter::Emitter do
       expect(output).to eq("foo at=start\nbar\nfoo at=finish elapsed=3.0000s\n")
     end
 
+    it "does not interrupt throw/catch" do
+      value = catch(:value) do
+        subject.log foo: "bar" do
+          throw :value, 123
+          "foobar"
+        end
+      end
+
+      expect(value).to eq(123)
+    end
+
     it "returns the block return value" do
       block = ->{ "return value" }
       expect(subject.log(foo: :bar, &block)).to eq("return value")
