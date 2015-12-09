@@ -67,9 +67,9 @@ end
 ```
 
 L2meter supports dynamic contexts as well. You can pass a proc instead of raw
-value in porder to use it.
+value in order to use it.
 
-The same example as above could be written like ths instead:
+The same example as above could be re-written like this instead:
 
 ```ruby
 def do_work_with_retries
