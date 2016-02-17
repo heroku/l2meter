@@ -14,7 +14,7 @@ module L2meter
       params = merge_contexts(params)
 
       if block_given?
-        wrap params, &Proc.new
+        wrap params, &proc
       else
         write params
       end
@@ -133,7 +133,7 @@ module L2meter
     def wrap(params)
       write params.merge(at: :start)
 
-      result, exception, elapsed = execute_with_elapsed(&Proc.new)
+      result, exception, elapsed = execute_with_elapsed(&proc)
 
       if exception
         status = { at: :exception, exception: exception.class.name, message: exception.message.strip }
