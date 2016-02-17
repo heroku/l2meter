@@ -140,7 +140,7 @@ Metrics.log foo: :bar # => app-name=my-app-name foo-bar
 Dynamic context is also supported:
 
 ```ruby
-context.context do
+config.context do
   { request_id: CurrentContext.request_id }
 end
 ```
