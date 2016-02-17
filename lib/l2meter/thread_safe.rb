@@ -1,3 +1,5 @@
+require "forwardable"
+
 module L2meter
   # This class is a wrapper around Emitter that makes sure that we have a
   # completely separate clone of Emitter per thread running. It doesn't truly
