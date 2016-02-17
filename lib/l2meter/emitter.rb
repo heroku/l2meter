@@ -73,7 +73,7 @@ module L2meter
 
     def transform_log_args(*args)
       params = Hash === args.last ? args.pop : {}
-      args = args.map { |key| [ key, true ] }.to_h
+      args = args.compact.map { |key| [ key, true ] }.to_h
       args.merge(params)
     end
 

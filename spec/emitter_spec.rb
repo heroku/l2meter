@@ -14,6 +14,11 @@ describe L2meter::Emitter do
       expect(output).to eq("foo\n")
     end
 
+    it "ignores nil-values" do
+      subject.log nil, :foo
+      expect(output).to eq("foo\n")
+    end
+
     it "logs key-value pairs" do
       subject.log foo: :bar
       expect(output).to eq("foo=bar\n")
