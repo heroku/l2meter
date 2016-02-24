@@ -113,6 +113,17 @@ Metrics.with_elapsed do
 end
 ```
 
+There's also a way to batch several calls into a single log line:
+
+```ruby
+Metrics.batch do
+  Metrics.log foo: :bar
+  Metrics.unique :registeration, "user@example.com"
+  Metrics.count :thing, 10
+  Metrics.sample :other_thing, 20
+end # => foo=bar unique#registration=user@example.com count#thing=10 sample#other-thing=20
+```
+
 ### Configuration
 
 L2meter supports configuration. Here's how you can configure things:

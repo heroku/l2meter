@@ -9,6 +9,7 @@ module L2meter
     extend Forwardable
 
     EMITTER_METHODS = %i[
+      batch
       configuration
       context
       count

@@ -395,4 +395,17 @@ describe L2meter::Emitter do
       expect(subject.clone).to eq(emitter_double)
     end
   end
+
+  describe "#batch" do
+    it "allows batching several log call into single line" do
+      subject.batch do
+        subject.log foo: :bar
+        subject.unique :registration, "user@example.com"
+        subject.count :thing, 10
+        subject.sample :other_thing, 20
+      end
+
+      expect(output).to eq("foo=bar unique#registration=user@example.com count#thing=10 sample#other-thing=20\n")
+    end
+  end
 end

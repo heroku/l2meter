@@ -69,6 +69,13 @@ module L2meter
       self.class.new(configuration: configuration)
     end
 
+    def batch
+      @outputs.push StringIO.new
+      yield
+    ensure
+      emit @outputs.pop.tap(&:rewind).read.split(/\s+/).uniq.join(" ")
+    end
+
     private
 
     def transform_log_args(*args)
@@ -122,8 +129,13 @@ module L2meter
 
       tokens.sort! if configuration.sort?
 
-      output_queue.last.print tokens.join(" ") + "\n"
+      emit tokens.join(" ")
     end
+
+    def emit(text)
+      output_queue.last.puts text
+    end
+
 
     def log_with_prefix(method, key, value, unit: nil)
       key = [configuration.prefix, key, unit].compact * ?.
