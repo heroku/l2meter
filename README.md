@@ -40,7 +40,7 @@ In case the exception is raised inside the block, l2meter will report is like
 so:
 
 ```ruby
-Metrics.log :doing_work do  # => doing-work
+Metrics.log :doing_work do  # => doing-work at=start
   raise ArgumentError, \    #
     "something is wrong"    #
 end                         # => doing-work at=exception exception=ArgumentError message="something is wrong" elapsed=1.2345s
@@ -107,9 +107,9 @@ L2meter also allows to append elapsed time to your log messages automatically.
 ```ruby
 Metrics.with_elapsed do
   do_work_step_1
-  log :step_1_done # => step-1-done elapsed=1.2345s
+  Metrics.log :step_1_done # => step-1-done elapsed=1.2345s
   do_work_step_2
-  log :step_2_done # => step-2-done elapsed=2.3456s
+  Metrics.log :step_2_done # => step-2-done elapsed=2.3456s
 end
 ```
 
