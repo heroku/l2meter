@@ -407,5 +407,14 @@ describe L2meter::Emitter do
 
       expect(output).to eq("foo=bar unique#registration=user@example.com count#thing=10 sample#other-thing=20\n")
     end
+
+    it "includes the last value of the key if there are more than one" do
+      subject.batch do
+        subject.log elapsed: 10
+        subject.log elapsed: 20
+      end
+
+      expect(output).to eq("elapsed=20\n")
+    end
   end
 end

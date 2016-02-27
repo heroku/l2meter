@@ -73,7 +73,7 @@ module L2meter
       @outputs.push StringIO.new
       yield
     ensure
-      emit @outputs.pop.tap(&:rewind).read.split(/\s+/).uniq.join(" ")
+      flush_buffer @outputs.pop
     end
 
     private
@@ -129,11 +129,11 @@ module L2meter
 
       tokens.sort! if configuration.sort?
 
-      emit tokens.join(" ")
+      emit tokens
     end
 
-    def emit(text)
-      output_queue.last.puts text
+    def emit(tokens)
+      output_queue.last.puts [*tokens].join(" ")
     end
 
 
@@ -175,6 +175,13 @@ module L2meter
 
     def output_queue
       [ configuration.output, *@outputs ].compact
+    end
+
+    def flush_buffer(buffer)
+      output = buffer.tap(&:rewind).read
+      tokens = output.split(/\s+/).reverse
+      tokens.uniq! { |token| token.split(?=, 2).first }
+      emit tokens.reverse
     end
   end
 end
