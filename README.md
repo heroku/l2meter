@@ -145,7 +145,7 @@ config.context = { app_name: "my-app-name" }
 
 # ...
 
-Metrics.log foo: :bar # => app-name=my-app-name foo-bar
+Metrics.log foo: :bar # => app-name=my-app-name foo=bar
 ```
 
 Dynamic context is also supported:
