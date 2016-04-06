@@ -212,12 +212,19 @@ describe L2meter::Emitter do
   end
 
   describe "#context" do
-    it "supports setting context for a block" do
+    it "supports setting context for a block as hash" do
       subject.context foo: "foo" do
         subject.log bar: :bar
       end
 
       expect(output).to eq("foo=foo bar=bar\n")
+    end
+
+    it "supports rich context" do
+      subject.context :foo, :bar, hello: :world do
+        subject.log fizz: :bazz
+      end
+      expect(output).to eq("foo bar hello=world fizz=bazz\n")
     end
 
     it "supports dynamic context" do

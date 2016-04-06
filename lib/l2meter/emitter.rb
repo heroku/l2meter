@@ -10,7 +10,7 @@ module L2meter
     end
 
     def log(*args)
-      params = transform_log_args(*args)
+      params = unwrap(*args)
       params = merge_contexts(params)
 
       if block_given?
@@ -58,11 +58,11 @@ module L2meter
       log_with_prefix :unique, metric, value
     end
 
-    def context(hash_or_proc)
-      @contexts.push hash_or_proc
+    def context(*context_data)
+      @contexts.concat context_data.reverse
       yield
     ensure
-      @contexts.pop
+      context_data.length.times { @contexts.pop }
     end
 
     def clone
@@ -78,7 +78,7 @@ module L2meter
 
     private
 
-    def transform_log_args(*args)
+    def unwrap(*args)
       params = Hash === args.last ? args.pop : {}
       args = args.compact.map { |key| [ key, true ] }.to_h
       args.merge(params)
@@ -102,9 +102,9 @@ module L2meter
     end
 
     def current_context
-      contexts_queue.inject({}) do |result, c|
-        current = c.respond_to?(:call) ? c.call.to_h : c.clone
-        result.merge(current)
+      contexts_queue.inject({}) do |result, context|
+        context = context.call if context.respond_to?(:call)
+        result.merge(unwrap(context))
       end.to_a.reverse.to_h
     end
 
