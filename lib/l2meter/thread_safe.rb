@@ -11,7 +11,6 @@ module L2meter
     EMITTER_METHODS = %i[
       batch
       configuration
-      context
       count
       log
       measure
@@ -32,13 +31,28 @@ module L2meter
 
     def_delegators :receiver, *EMITTER_METHODS
 
+    def context(*args, &block)
+      value = emitter.context(*args, &block)
+      block_given?? value : clone_with_emitter(value)
+    end
+
     def disable!
       @disabled = true
     end
 
+    protected
+
+    attr_writer :emitter
+
     private
 
     attr_reader :emitter
+
+    def clone_with_emitter(emitter)
+      clone.tap do |ts|
+        ts.emitter = emitter
+      end
+    end
 
     def receiver
       @disabled ? null_emitter : current_emitter

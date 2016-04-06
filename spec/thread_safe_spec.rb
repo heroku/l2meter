@@ -3,15 +3,13 @@ require "spec_helper"
 describe L2meter::ThreadSafe do
   def self.forwarded_clone_methods
     emitter_methods = L2meter::Emitter.instance_methods
+    ts_overrides = L2meter::ThreadSafe.instance_methods
     object_methods = Object.instance_methods
-    emitter_methods - object_methods
+    emitter_methods - ts_overrides - object_methods
   end
 
-  let :emitter do
-    double("L2meter::Emitter").tap do |emitter|
-      allow(emitter).to receive(:freeze).and_return(emitter)
-    end
-  end
+  let(:emitter) { L2meter::Emitter.new }
+  before { allow(emitter).to receive(:freeze).and_return(emitter) }
 
   subject { described_class.new(emitter) }
 
@@ -39,6 +37,19 @@ describe L2meter::ThreadSafe do
       end
 
       expect(performed).to eq(true)
+    end
+  end
+
+  describe "#context" do
+    it "wraps contexted emitter in thread-safe" do
+      expect(subject.context(:foo)).to be_instance_of(described_class)
+    end
+
+    it "preserves disabled state" do
+      expect_any_instance_of(L2meter::Emitter).to_not receive(:log)
+      subject.disable!
+      contexted = subject.context(:foo)
+      contexted.log :bar
     end
   end
 end

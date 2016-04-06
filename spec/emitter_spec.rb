@@ -274,6 +274,12 @@ describe L2meter::Emitter do
         expect(output).to eq("foo bar fizz=buzz hello=world\n")
       end
 
+      it "does not affect original emitter" do
+        contexted = subject.context(:foo, :bar, fizz: :buzz)
+        subject.log hello: :world
+        expect(output).to eq("hello=world\n")
+      end
+
       it "allows to use proc" do
         contexted = subject.context(->{{ foo: :bar }})
         contexted.log hello: :world
