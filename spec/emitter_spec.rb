@@ -212,57 +212,73 @@ describe L2meter::Emitter do
   end
 
   describe "#context" do
-    it "supports setting context for a block as hash" do
-      subject.context foo: "foo" do
-        subject.log bar: :bar
-      end
-
-      expect(output).to eq("foo=foo bar=bar\n")
-    end
-
-    it "supports rich context" do
-      subject.context :foo, :bar, hello: :world do
-        subject.log fizz: :bazz
-      end
-      expect(output).to eq("foo bar hello=world fizz=bazz\n")
-    end
-
-    it "supports dynamic context" do
-      client = double
-      expect(client).to receive(:get_id).and_return("abcd")
-      subject.context ->{{ foo: client.get_id }} do
-        subject.log bar: :bar
-      end
-
-      expect(output).to eq("foo=abcd bar=bar\n")
-    end
-
-    it "supports nested context" do
-      subject.context foo: :foo do
-        subject.context ->{{ bar: :bar }} do
-          subject.log hello: :world
+    describe "with block" do
+      it "supports setting context for a block as hash" do
+        subject.context foo: "foo" do
+          subject.log bar: :bar
         end
+
+        expect(output).to eq("foo=foo bar=bar\n")
       end
 
-      expect(output).to eq("bar=bar foo=foo hello=world\n")
-    end
-
-    it "prefers internal context over the external one" do
-      subject.context foo: :foo do
-        subject.context foo: :bar do
-          subject.log "hello world"
+      it "supports rich context" do
+        subject.context :foo, :bar, hello: :world do
+          subject.log fizz: :bazz
         end
+        expect(output).to eq("foo bar hello=world fizz=bazz\n")
       end
 
-      expect(output).to eq("foo=bar hello-world\n")
+      it "supports dynamic context" do
+        client = double
+        expect(client).to receive(:get_id).and_return("abcd")
+        subject.context ->{{ foo: client.get_id }} do
+          subject.log bar: :bar
+        end
+
+        expect(output).to eq("foo=abcd bar=bar\n")
+      end
+
+      it "supports nested context" do
+        subject.context foo: :foo do
+          subject.context ->{{ bar: :bar }} do
+            subject.log hello: :world
+          end
+        end
+
+        expect(output).to eq("bar=bar foo=foo hello=world\n")
+      end
+
+      it "prefers internal context over the external one" do
+        subject.context foo: :foo do
+          subject.context foo: :bar do
+            subject.log "hello world"
+          end
+        end
+
+        expect(output).to eq("foo=bar hello-world\n")
+      end
+
+      it "prefers direct logging values over context" do
+        subject.context foo: :foo do
+          subject.log foo: :bar
+        end
+
+        expect(output).to eq("foo=bar\n")
+      end
     end
 
-    it "prefers direct logging values over context" do
-      subject.context foo: :foo do
-        subject.log foo: :bar
+    describe "without block" do
+      it "returns a new instance of emitter with context" do
+        contexted = subject.context(:foo, :bar, fizz: :buzz)
+        contexted.log hello: :world
+        expect(output).to eq("foo bar fizz=buzz hello=world\n")
       end
 
-      expect(output).to eq("foo=bar\n")
+      it "allows to use proc" do
+        contexted = subject.context(->{{ foo: :bar }})
+        contexted.log hello: :world
+        expect(output).to eq("foo=bar hello=world\n")
+      end
     end
   end
 

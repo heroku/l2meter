@@ -15,6 +15,7 @@ module L2meter
       count
       log
       measure
+      push_context
       sample
       silence
       silence!

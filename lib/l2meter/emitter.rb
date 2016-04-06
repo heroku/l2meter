@@ -59,10 +59,18 @@ module L2meter
     end
 
     def context(*context_data)
-      @contexts.concat context_data.reverse
-      yield
-    ensure
-      context_data.length.times { @contexts.pop }
+      if block_given?
+        begin
+          push_context context_data
+          yield
+        ensure
+          context_data.length.times { @contexts.pop }
+        end
+      else
+        clone.tap do |emitter|
+          emitter.push_context context_data
+        end
+      end
     end
 
     def clone
@@ -74,6 +82,12 @@ module L2meter
       yield
     ensure
       flush_buffer @outputs.pop
+    end
+
+    protected
+
+    def push_context(context_data)
+      @contexts.concat context_data.reverse
     end
 
     private
