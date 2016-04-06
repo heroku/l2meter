@@ -59,18 +59,11 @@ module L2meter
     end
 
     def context(*context_data)
-      if block_given?
-        begin
-          push_context context_data
-          yield
-        ensure
-          context_data.length.times { @contexts.pop }
-        end
-      else
-        clone.tap do |emitter|
-          emitter.push_context context_data
-        end
-      end
+      return clone_with_context(context_data) unless block_given?
+      push_context context_data
+      yield
+    ensure
+      context_data.length.times { @contexts.pop }
     end
 
     def clone
@@ -91,6 +84,12 @@ module L2meter
     end
 
     private
+
+    def clone_with_context(context)
+      clone.tap do |emitter|
+        emitter.push_context context
+      end
+    end
 
     def unwrap(*args)
       params = Hash === args.last ? args.pop : {}
@@ -141,9 +140,7 @@ module L2meter
         value == true ? key : [key, format_value(value)] * ?=
       end
 
-      tokens.sort! if configuration.sort?
-
-      emit tokens
+      emit configuration.sort?? tokens.sort : tokens
     end
 
     def emit(tokens)
@@ -158,19 +155,17 @@ module L2meter
     def wrap(params)
       write params.merge(at: :start)
 
-      result, exception, elapsed = execute_with_elapsed(&proc)
+      result, error, elapsed = execute_with_elapsed(&proc)
 
-      if exception
-        status = { at: :exception, exception: exception.class.name, message: exception.message.strip }
+      status = if error
+        { at: :exception, exception: error.class, message: error.message.strip }
       else
-        status = { at: :finish }
+        { at: :finish }
       end
 
-      status = merge_elapsed(elapsed, status)
+      write params.merge(merge_elapsed(elapsed, status))
 
-      write params.merge(status)
-
-      raise exception if exception
+      raise error if error
 
       result
     end
@@ -178,7 +173,7 @@ module L2meter
     def execute_with_elapsed
       time_at_start = Time.now
       [yield, nil, Time.now - time_at_start]
-    rescue Exception => exception
+    rescue Object => exception
       [nil, exception, Time.now - time_at_start]
     end
 
