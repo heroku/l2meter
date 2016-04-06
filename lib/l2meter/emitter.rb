@@ -50,7 +50,7 @@ module L2meter
       log_with_prefix :sample, metric, value, unit: unit
     end
 
-    def count(metric, value=1)
+    def count(metric, value = 1)
       log_with_prefix :count, metric, value
     end
 
@@ -94,7 +94,7 @@ module L2meter
 
     def unwrap(*args)
       params = Hash === args.last ? args.pop : {}
-      args = args.compact.map { |key| [ key, true ] }.to_h
+      args = args.compact.map { |key| [key, true] }.to_h
       args.merge(params)
     end
 
@@ -138,7 +138,7 @@ module L2meter
 
     def write(params)
       tokens = format_keys(params).map do |key, value|
-        value == true ? key : [ key, format_value(value) ] * ?=
+        value == true ? key : [key, format_value(value)] * ?=
       end
 
       tokens.sort! if configuration.sort?
@@ -149,7 +149,6 @@ module L2meter
     def emit(tokens)
       output_queue.last.puts [*tokens].join(" ")
     end
-
 
     def log_with_prefix(method, key, value, unit: nil)
       key = [configuration.prefix, key, unit].compact * ?.
@@ -178,17 +177,17 @@ module L2meter
 
     def execute_with_elapsed
       time_at_start = Time.now
-      [ yield, nil, Time.now - time_at_start ]
+      [yield, nil, Time.now - time_at_start]
     rescue Exception => exception
-      [ nil, exception, Time.now - time_at_start ]
+      [nil, exception, Time.now - time_at_start]
     end
 
     def contexts_queue
-      [ configuration.context, *@contexts ].compact
+      [configuration.context, *@contexts].compact
     end
 
     def output_queue
-      [ configuration.output, *@outputs ].compact
+      [configuration.output, *@outputs].compact
     end
 
     def flush_buffer(buffer)

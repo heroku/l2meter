@@ -46,8 +46,6 @@ module L2meter
       end
     end
 
-    def context=(block_or_value)
-      @context = block_or_value
-    end
+    attr_writer :context
   end
 end
