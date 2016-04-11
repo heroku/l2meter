@@ -4,6 +4,8 @@ module L2meter
 
     def initialize(configuration: Configuration.new)
       @configuration = configuration
+      @buffer = {}
+      @autoflush = true
       @start_times = []
       @contexts = []
       @outputs = []
@@ -71,10 +73,11 @@ module L2meter
     end
 
     def batch
-      @outputs.push StringIO.new
+      @autoflush = false
       yield
     ensure
-      flush_buffer @outputs.pop
+      @autoflush = true
+      flush_buffer
     end
 
     protected
@@ -93,8 +96,11 @@ module L2meter
 
     def unwrap(*args)
       params = Hash === args.last ? args.pop : {}
-      args = args.compact.map { |key| [key, true] }.to_h
-      args.merge(params)
+      args.compact.map { |key| [key, true] }.to_h.merge(params)
+    end
+
+    def stringify_keys(hash)
+      hash.each_with_object({}) { |(k, v), a| a[k.to_s] = v }
     end
 
     def merge_contexts(params)
@@ -129,22 +135,9 @@ module L2meter
       configuration.key_formatter.call(key)
     end
 
-    def format_keys(params)
-      params.inject({}) do |normalized, (key, value)|
-        normalized.tap { |n| n[format_key(key)] = value }
-      end
-    end
-
     def write(params)
-      tokens = format_keys(params).map do |key, value|
-        value == true ? key : [key, format_value(value)] * ?=
-      end
-
-      emit configuration.sort?? tokens.sort : tokens
-    end
-
-    def emit(tokens)
-      output_queue.last.puts [*tokens].join(" ")
+      @buffer.merge! stringify_keys(params)
+      flush_buffer if @autoflush
     end
 
     def log_with_prefix(method, key, value, unit: nil)
@@ -185,11 +178,17 @@ module L2meter
       [configuration.output, *@outputs].compact
     end
 
-    def flush_buffer(buffer)
-      output = buffer.tap(&:rewind).read
-      tokens = output.split(/\s+/).reverse
-      tokens.uniq! { |token| token.split(?=, 2).first }
-      emit tokens.reverse
+    def flush_buffer
+      tokens = @buffer.map do |key, value|
+        key = format_key(key)
+        value == true ? key : "#{key}=#{format_value(value)}"
+      end
+
+      tokens.sort! if configuration.sort?
+
+      output_queue.last.puts [*tokens].join(" ")
+    ensure
+      @buffer.clear
     end
   end
 end

@@ -428,13 +428,14 @@ describe L2meter::Emitter do
   describe "#batch" do
     it "allows batching several log call into single line" do
       subject.batch do
-        subject.log foo: :bar
+        subject.log foo: "a long value"
+        subject.log foo: "another long value"
         subject.unique :registration, "user@example.com"
         subject.count :thing, 10
         subject.sample :other_thing, 20
       end
 
-      expect(output).to eq("foo=bar unique#registration=user@example.com count#thing=10 sample#other-thing=20\n")
+      expect(output).to eq("foo=\"another long value\" unique#registration=user@example.com count#thing=10 sample#other-thing=20\n")
     end
 
     it "includes the last value of the key if there are more than one" do
