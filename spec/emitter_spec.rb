@@ -286,6 +286,27 @@ describe L2meter::Emitter do
         expect(output).to eq("foo=bar hello=world\n")
       end
     end
+
+    describe "mixed" do
+      it "creating contexted emitter should not affect original emitter" do
+        subject.context foo: :bar do
+          subject.context(fizz: :buzz)
+          subject.log hello: :world
+        end
+
+        expect(output).to eq("foo=bar hello=world\n")
+      end
+
+      it "contexted emitter should not have original emitter's block-context" do
+        contexted = nil
+        subject.context foo: :bar do
+          contexted = subject.context(fizz: :buzz)
+          contexted.log hello: :world
+        end
+
+        expect(output).to eq("fizz=buzz hello=world\n")
+      end
+    end
   end
 
   describe "#measure" do

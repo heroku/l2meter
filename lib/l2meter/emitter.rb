@@ -65,7 +65,7 @@ module L2meter
       push_context context_data
       yield
     ensure
-      context_data.length.times { @contexts.pop }
+      context_data.length.times { @contexts.pop } if block_given?
     end
 
     def clone
