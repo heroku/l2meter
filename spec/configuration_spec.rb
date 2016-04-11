@@ -24,7 +24,7 @@ describe L2meter::Configuration do
   end
 
   it "has default value formatter" do
-    { :foo => "foo", "hello world" => "\"hello world\"", 123 => "123" }.each do |value, formatted|
+    { :foo => "foo", 123 => "123", " hello\n\n\n world " => "\"hello world\"" }.each do |value, formatted|
       expect(subject.value_formatter.call(value)).to eq(formatted)
     end
   end

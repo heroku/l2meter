@@ -9,8 +9,8 @@ module L2meter
     end
 
     DEFAULT_VALUE_FORMATTER = ->(value) do
-      value = value.to_s
-      value =~ /\s/ ? value.inspect : value
+      value = value.to_s.strip
+      value =~ /\s/ ? value.gsub(/\s+/, " ").inspect : value
     end
 
     private_constant :DEFAULT_KEY_FORMATTER, :DEFAULT_VALUE_FORMATTER
