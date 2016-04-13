@@ -180,13 +180,14 @@ module L2meter
 
     def flush_buffer
       tokens = @buffer.map do |key, value|
+        next if value.nil?
         key = format_key(key)
         value == true ? key : "#{key}=#{format_value(value)}"
-      end
+      end.compact
 
       tokens.sort! if configuration.sort?
 
-      output_queue.last.puts [*tokens].join(" ")
+      output_queue.last.puts [*tokens].join(" ") if tokens.any?
     ensure
       @buffer.clear
     end

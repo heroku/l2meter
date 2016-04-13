@@ -14,13 +14,18 @@ describe L2meter::Emitter do
       expect(output).to eq("foo\n")
     end
 
-    it "ignores nil-values" do
+    it "skips nil-values" do
       subject.log nil, :foo
       expect(output).to eq("foo\n")
     end
 
     it "logs key-value pairs" do
       subject.log foo: :bar
+      expect(output).to eq("foo=bar\n")
+    end
+
+    it "skips key-value pairs where valus is nil" do
+      subject.log foo: :bar, fizz: nil
       expect(output).to eq("foo=bar\n")
     end
 
@@ -75,6 +80,11 @@ describe L2meter::Emitter do
       configuration.format_values &:upcase
       subject.log foo: "bar"
       expect(output).to eq("foo=BAR\n")
+    end
+
+    it "does not log empty lines" do
+      subject.log nil, foo: nil
+      expect(output).to be_empty
     end
 
     it "takes block" do
