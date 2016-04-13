@@ -85,6 +85,30 @@ def do_work_with_retries
 end
 ```
 
+## Contexted logging
+
+Sometimes you want another copy of the logger with a specific context on it.
+You can created one like so:
+
+```ruby
+logger = Metrics.context(:super_worker, username: "joe")
+
+SuperWorker.new(logger: logger).run # => super-worker username=joe some-other=superworker-output
+```
+
+## Batching
+
+There's also a way to batch several calls into a single log line:
+
+```ruby
+Metrics.batch do
+  Metrics.log foo: :bar
+  Metrics.unique :registeration, "user@example.com"
+  Metrics.count :thing, 10
+  Metrics.sample :other_thing, 20
+end # => foo=bar unique#registration=user@example.com count#thing=10 sample#other-thing=20
+```
+
 ## Other
 
 Some other l2met-specific methods are supported.
@@ -111,17 +135,6 @@ Metrics.with_elapsed do
   do_work_step_2
   Metrics.log :step_2_done # => step-2-done elapsed=2.3456s
 end
-```
-
-There's also a way to batch several calls into a single log line:
-
-```ruby
-Metrics.batch do
-  Metrics.log foo: :bar
-  Metrics.unique :registeration, "user@example.com"
-  Metrics.count :thing, 10
-  Metrics.sample :other_thing, 20
-end # => foo=bar unique#registration=user@example.com count#thing=10 sample#other-thing=20
 ```
 
 ### Configuration
