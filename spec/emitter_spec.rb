@@ -2,9 +2,11 @@ require "spec_helper"
 
 describe L2meter::Emitter do
   let(:configuration) { L2meter::Configuration.new }
-  subject { described_class.new(configuration: configuration) }
+  let(:emitter) { described_class.new(configuration: configuration) }
   let(:io) { StringIO.new }
   let(:output) { io.tap(&:rewind).read }
+
+  subject { L2meter::ThreadSafe.new(emitter) }
 
   before { configuration.output = io }
 
@@ -307,14 +309,14 @@ describe L2meter::Emitter do
         expect(output).to eq("foo=bar hello=world\n")
       end
 
-      it "contexted emitter should not have original emitter's block-context" do
+      it "contexted emitter should have original emitter's block-context" do
         contexted = nil
         subject.context foo: :bar do
           contexted = subject.context(fizz: :buzz)
           contexted.log hello: :world
         end
 
-        expect(output).to eq("fizz=buzz hello=world\n")
+        expect(output).to eq("fizz=buzz foo=bar hello=world\n")
       end
     end
   end
@@ -444,15 +446,8 @@ describe L2meter::Emitter do
 
   describe "#clone" do
     it "returns new emitter with same configuration" do
-      subject # noop call to fire up lazy initialization
-
-      emitter_double = double(described_class.name)
-
-      expect(described_class).to receive(:new)
-        .with(configuration: configuration)
-        .and_return(emitter_double)
-
-      expect(subject.clone).to eq(emitter_double)
+      clone = subject.clone
+      expect(subject.configuration).to eq(clone.configuration)
     end
   end
 

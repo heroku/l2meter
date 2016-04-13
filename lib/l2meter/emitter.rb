@@ -69,7 +69,11 @@ module L2meter
     end
 
     def clone
-      self.class.new(configuration: configuration)
+      cloned_contexts = @contexts.clone
+      self.class.new(configuration: configuration).instance_eval do
+        @contexts = cloned_contexts
+        self
+      end
     end
 
     def batch

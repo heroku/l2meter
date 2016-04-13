@@ -32,8 +32,8 @@ module L2meter
     def_delegators :receiver, *EMITTER_METHODS
 
     def context(*args, &block)
-      value = emitter.context(*args, &block)
-      block_given?? value : clone_with_emitter(value)
+      value = current_emitter.context(*args, &block)
+      Emitter === value ? clone_with_emitter(value) : value
     end
 
     def disable!
@@ -49,9 +49,7 @@ module L2meter
     attr_reader :emitter
 
     def clone_with_emitter(emitter)
-      clone.tap do |ts|
-        ts.emitter = emitter
-      end
+      self.class.new(emitter).tap { |ts| ts.disable! if @disabled }
     end
 
     def receiver
