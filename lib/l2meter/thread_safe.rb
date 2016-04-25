@@ -21,6 +21,7 @@ module L2meter
       unique
       unsilence!
       with_elapsed
+      with_output
     ]
 
     private_constant :EMITTER_METHODS

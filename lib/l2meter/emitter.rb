@@ -29,11 +29,15 @@ module L2meter
       @start_times.pop
     end
 
-    def silence
-      silence!
+    def with_output(output)
+      @outputs.push output
       yield
     ensure
-      unsilence!
+      @outputs.pop
+    end
+
+    def silence
+      with_output(NullObject.new, &proc)
     end
 
     def silence!

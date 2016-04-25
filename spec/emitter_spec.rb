@@ -473,4 +473,14 @@ describe L2meter::Emitter do
       expect(output).to eq("elapsed=20\n")
     end
   end
+
+  specify "#with_output" do
+    other_output = StringIO.new
+    subject.with_output(other_output) do
+      subject.log foo: :bar
+    end
+
+    expect(output).to be_empty
+    expect(other_output.tap(&:rewind).read).to eq("foo=bar\n")
+  end
 end
