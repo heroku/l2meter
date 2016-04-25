@@ -195,7 +195,7 @@ module L2meter
 
       tokens.sort! if configuration.sort?
 
-      output_queue.last.puts [*tokens].join(" ") if tokens.any?
+      output_queue.last.print [*tokens].join(" ") + "\n" if tokens.any?
     ensure
       @buffer.clear
     end
