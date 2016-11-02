@@ -58,7 +58,7 @@ describe L2meter::Emitter do
 
     it "formats keys" do
       subject.log :foo_bar, "Hello World", fizz_buzz: "fizz_buzz"
-      expect(output).to eq("foo-bar hello-world fizz-buzz=fizz_buzz\n")
+      expect(output).to eq("foo_bar hello_world fizz_buzz=fizz_buzz\n")
     end
 
     it "sorts tokens if specified by configuration" do
@@ -167,9 +167,9 @@ describe L2meter::Emitter do
       end
 
       expected = String.new.tap do |log|
-        log << "source=us-west regular-log\n"
+        log << "source=us-west regular_log\n"
         log << "source=us-west key=value\n"
-        log << "source=us-west with=context hello-world\n"
+        log << "source=us-west with=context hello_world\n"
       end
 
       expect(output).to eq(expected)
@@ -267,7 +267,7 @@ describe L2meter::Emitter do
           end
         end
 
-        expect(output).to eq("foo=bar hello-world\n")
+        expect(output).to eq("foo=bar hello_world\n")
       end
 
       it "prefers direct logging values over context" do
@@ -461,7 +461,7 @@ describe L2meter::Emitter do
         subject.sample :other_thing, 20
       end
 
-      expect(output).to eq("foo=\"another long value\" unique#registration=user@example.com count#thing=10 sample#other-thing=20\n")
+      expect(output).to eq("foo=\"another long value\" unique#registration=user@example.com count#thing=10 sample#other_thing=20\n")
     end
 
     it "includes the last value of the key if there are more than one" do
