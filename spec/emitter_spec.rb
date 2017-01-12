@@ -274,7 +274,7 @@ describe L2meter::Emitter do
         subject.log :baz
       end
 
-      expect(output).to eq("foo elapsed=3.0000s\nbar elapsed=6.0000s\nbaz\n")
+      expect(output).to eq("elapsed=3.0000s foo\nelapsed=6.0000s bar\nbaz\n")
     end
   end
 

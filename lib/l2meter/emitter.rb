@@ -8,16 +8,12 @@ module L2meter
       @configuration = configuration
       @buffer = {}
       @autoflush = true
-      @start_times = []
       @contexts = []
       @outputs = []
     end
 
     def log(*args)
-      merge! source: configuration.source
-      merge! *current_contexts
-      merge! *args
-      elapse!
+      merge! *current_contexts, *args
 
       if block_given?
         wrap &proc
@@ -26,11 +22,8 @@ module L2meter
       end
     end
 
-    def with_elapsed
-      @start_times << Time.now
-      yield
-    ensure
-      @start_times.pop
+    def with_elapsed(start_time = Time.now, &block)
+      context(elapsed_context(start_time), &block)
     end
 
     def with_output(output)
@@ -195,8 +188,7 @@ module L2meter
         merge! params, at: :exception, exception: exception.class, message: exception.message
       end
 
-      elapse! start_time
-      write
+      write elapsed_context(start_time)
 
       raise exception if exception
 
@@ -204,16 +196,23 @@ module L2meter
     end
 
     def contexts_queue
-      [configuration.context, *@contexts].compact
+      [configuration.context, source_context, *@contexts].compact
     end
 
     def output_queue
       [configuration.output, *@outputs].compact
     end
 
-    def elapse!(since = @start_times.last)
-      return unless since
-      merge! elapsed: format_float(Time.now - since, unit: ?s)
+    def source_context
+      { source: configuration.source }
+    end
+
+    def elapsed_context(since = Time.now)
+      { elapsed: -> { elapsed_value(since) }}
+    end
+
+    def elapsed_value(since)
+      format_float(Time.now - since, unit: ?s)
     end
   end
 end
