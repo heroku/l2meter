@@ -98,6 +98,10 @@ module L2meter
 
     private
 
+    def merge!(params)
+      @buffer.merge! format_keys(params)
+    end
+
     def format_float(value)
       "%.4f" % value
     end
@@ -165,7 +169,7 @@ module L2meter
     end
 
     def write(params)
-      @buffer.merge! format_keys(params)
+      merge! params
       flush_buffer if @autoflush
     end
 
