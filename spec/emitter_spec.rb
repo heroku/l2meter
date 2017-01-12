@@ -92,6 +92,12 @@ describe L2meter::Emitter do
         expect(output).to eq("foo=1.2346\n")
       end
 
+      it "respects float precision" do
+        configuration.float_precision = 5
+        subject.log foo: 1.23456789
+        expect(output).to eq("foo=1.23457\n")
+      end
+
       it "formats dates" do
         subject.log foo: Date.new(2017, 1, 1)
         expect(output).to eq("foo=2017-01-01\n")

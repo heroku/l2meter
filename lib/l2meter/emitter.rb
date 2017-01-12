@@ -127,7 +127,7 @@ module L2meter
     end
 
     def format_float(value, unit: nil)
-      "%.4f#{unit}" % value
+      "%.#{configuration.float_precision}f#{unit}" % value
     end
 
     def clone_with_context(context)

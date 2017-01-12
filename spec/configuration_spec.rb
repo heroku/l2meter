@@ -49,4 +49,13 @@ describe L2meter::Configuration do
     subject.prefix = "hello"
     expect(subject.prefix).to eq("hello")
   end
+
+  it "has default float precision of 4" do
+    expect(subject.float_precision).to eq(4)
+  end
+
+  it "allows setting float precision" do
+    subject.float_precision = 5
+    expect(subject.float_precision).to eq(5)
+  end
 end

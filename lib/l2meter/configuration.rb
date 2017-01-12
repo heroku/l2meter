@@ -1,7 +1,7 @@
 module L2meter
   class Configuration
     attr_writer :output
-    attr_accessor :source, :prefix
+    attr_accessor :source, :prefix, :float_precision
     attr_reader :context, :key_formatter, :output
 
     DEFAULT_KEY_FORMATTER = ->(key) do
@@ -14,6 +14,7 @@ module L2meter
       @sort = false
       @key_formatter = DEFAULT_KEY_FORMATTER
       @output = $stdout
+      @float_precision = 4
     end
 
     def format_keys(&block)
