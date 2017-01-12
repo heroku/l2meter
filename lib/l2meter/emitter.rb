@@ -1,3 +1,5 @@
+require "time"
+
 module L2meter
   class Emitter
     attr_reader :configuration
@@ -96,6 +98,10 @@ module L2meter
 
     private
 
+    def format_float(value)
+      "%.4f" % value
+    end
+
     def clone_with_context(context)
       clone.tap do |emitter|
         emitter.push_context context
@@ -136,7 +142,22 @@ module L2meter
     end
 
     def format_value(value)
-      configuration.value_formatter.call(value)
+      case value
+      when /[^\w,.:@-]/
+        value.strip.gsub(/\s+/, " ").inspect
+      when String
+        value.to_s
+      when Float
+        format_float(value)
+      when Time
+        value.iso8601
+      when Hash
+        format_value(value.inspect)
+      when Array
+        value.map(&method(:format_value)).join(?,)
+      else
+        format_value(value.to_s)
+      end
     end
 
     def format_key(key)

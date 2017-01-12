@@ -61,6 +61,78 @@ describe L2meter::Emitter do
       expect(output).to eq("foo_bar hello_world fizz_buzz=fizz_buzz\n")
     end
 
+    describe "value formatter" do
+      it "formats plain strings" do
+        subject.log foo: "bar"
+        expect(output).to eq("foo=bar\n")
+      end
+
+      it "formats strings with space characters" do
+        subject.log foo: "  foo  \t\n\n\n\t bar  "
+        expect(output).to eq("foo=\"foo bar\"\n")
+      end
+
+      it "formats strings with quotes" do
+        subject.log foo: "foo\"bar"
+        expect(output).to eq("foo=\"foo\\\"bar\"\n")
+      end
+
+      it "formats symbols as strings" do
+        subject.log foo: :bar
+        expect(output).to eq("foo=bar\n")
+      end
+
+      it "formats integers" do
+        subject.log foo: 123
+        expect(output).to eq("foo=123\n")
+      end
+
+      it "formats floats" do
+        subject.log foo: 1.23456789
+        expect(output).to eq("foo=1.2346\n")
+      end
+
+      it "formats dates" do
+        subject.log foo: Date.new(2017, 1, 1)
+        expect(output).to eq("foo=2017-01-01\n")
+      end
+
+      it "formats utc time" do
+        subject.log foo: Time.utc(2017, 1, 1, 1, 1, 1)
+        expect(output).to eq("foo=2017-01-01T01:01:01Z\n")
+      end
+
+      it "formats non-utc time" do
+        subject.log foo: Time.new(2017, 1, 1, 1, 1, 1, 8 * 3600)
+        expect(output).to eq("foo=2017-01-01T01:01:01+08:00\n")
+      end
+
+      it "formats hashes" do
+        subject.log foo: {foo: :bar}
+        expect(output).to eq("foo=\"{:foo=>:bar}\"\n")
+      end
+
+      it "formats modules/classes" do
+        MyClass = Class.new
+        MyModule = Module.new
+        subject.log class: MyClass, module: MyModule
+        expect(output).to eq("class=MyClass module=MyModule\n")
+      end
+
+      it "formats arrays" do
+        array = [
+          true,
+          false,
+          :foo,
+          Time.utc(2017, 1, 1, 1, 1, 1),
+          Date.new(2017, 1, 1)
+        ]
+
+        subject.log foo: array
+        expect(output).to eq("foo=true,false,foo,2017-01-01T01:01:01Z,2017-01-01\n")
+      end
+    end
+
     it "sorts tokens if specified by configuration" do
       configuration.sort = true
       subject.log :c, :b, :a, 123, foo: :bar
@@ -76,12 +148,6 @@ describe L2meter::Emitter do
     it "formats values" do
       subject.log foo: "hello world"
       expect(output).to eq("foo=\"hello world\"\n")
-    end
-
-    it "uses formatter from configuration" do
-      configuration.format_values &:upcase
-      subject.log foo: "bar"
-      expect(output).to eq("foo=BAR\n")
     end
 
     it "does not log empty lines" do

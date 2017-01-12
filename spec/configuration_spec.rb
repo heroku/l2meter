@@ -23,18 +23,6 @@ describe L2meter::Configuration do
     expect(subject.key_formatter).to eq(formatter)
   end
 
-  it "has default value formatter" do
-    { :foo => "foo", 123 => "123", " hello\n\n\n world " => "\"hello world\"" }.each do |value, formatted|
-      expect(subject.value_formatter.call(value)).to eq(formatted)
-    end
-  end
-
-  it "allows to specify value formatter" do
-    formatter = ->{}
-    subject.format_values &formatter
-    expect(subject.value_formatter).to eq(formatter)
-  end
-
   it "doesn't sort by default" do
     expect(subject.sort?).to eq(false)
   end
