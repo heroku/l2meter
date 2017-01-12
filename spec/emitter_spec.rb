@@ -52,8 +52,8 @@ describe L2meter::Emitter do
     end
 
     it "never outputs the same token twice" do
-      subject.log foo: :bar, "foo" => "baz"
-      expect(output).to eq("foo=baz\n")
+      subject.log foo: 1, "fOO " => 2, " Foo" => 3, "foo" => 4
+      expect(output).to eq("foo=4\n")
     end
 
     it "formats keys" do

@@ -113,10 +113,6 @@ module L2meter
       args.compact.map { |key| [key, true] }.to_h.merge(params)
     end
 
-    def stringify_keys(hash)
-      hash.each_with_object({}) { |(k, v), a| a[k.to_s] = v }
-    end
-
     def merge_contexts(params)
       params = current_context.merge(params)
       source = configuration.source
@@ -164,8 +160,12 @@ module L2meter
       configuration.key_formatter.call(key)
     end
 
+    def format_keys(hash)
+      hash.each_with_object({}) { |(k, v), a| a[format_key(k)] = v }
+    end
+
     def write(params)
-      @buffer.merge! stringify_keys(params)
+      @buffer.merge! format_keys(params)
       flush_buffer if @autoflush
     end
 
