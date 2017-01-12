@@ -153,6 +153,8 @@ module L2meter
         format_float(value)
       when Time
         value.iso8601
+      when Proc
+        format_value(value.call)
       when Hash
         format_value(value.inspect)
       when Array

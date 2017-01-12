@@ -118,6 +118,19 @@ describe L2meter::Emitter do
         expect(output).to eq("foo=\"{:foo=>:bar}\"\n")
       end
 
+      it "formats lambdas" do
+        value = -> { :hello }
+        subject.log foo: value
+        expect(output).to eq("foo=hello\n")
+      end
+
+      it "formats procs" do
+        counter = 0
+        value = -> { counter += 1 }
+        subject.log foo: value, bar: value
+        expect(output).to eq("foo=1 bar=2\n")
+      end
+
       it "formats modules/classes" do
         MyClass = Class.new
         MyModule = Module.new
