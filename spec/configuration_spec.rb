@@ -12,7 +12,7 @@ describe L2meter::Configuration do
   end
 
   it "has default key formatter" do
-    { :foo_bar => "foo_bar", "Hello World" => "hello_world", 123 => "123" }.each do |key, formatted|
+    { :foo_bar => "foo-bar", "Hello World" => "hello-world", 123 => "123" }.each do |key, formatted|
       expect(subject.key_formatter.call(key)).to eq(formatted)
     end
   end
