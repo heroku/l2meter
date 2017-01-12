@@ -14,13 +14,15 @@ module L2meter
     end
 
     def log(*args)
-      params = unwrap(*args)
-      params = merge_contexts(params)
+      merge! source: configuration.source
+      merge! *current_contexts
+      merge! *args
+      elapse!
 
       if block_given?
-        wrap params, &proc
+        wrap &proc
       else
-        write params
+        write
       end
     end
 
@@ -87,23 +89,45 @@ module L2meter
       yield
     ensure
       @autoflush = true
-      flush_buffer
+      fire!
+    end
+
+    def merge!(*args)
+      @buffer.merge! format_keys(unwrap(args))
+    end
+
+    def fire!
+      tokens = @buffer.map do |key, value|
+        next if value.nil?
+        key = format_key(key)
+        value == true ? key : "#{key}=#{format_value(value)}"
+      end.compact
+
+      tokens.sort! if configuration.sort?
+
+      output_queue.last.print [*tokens].join(" ") + "\n" if tokens.any?
+    ensure
+      @buffer.clear
     end
 
     protected
 
     def push_context(context_data)
-      @contexts.concat context_data.reverse
+      @contexts.concat context_data
     end
 
     private
 
-    def merge!(params)
-      @buffer.merge! format_keys(params)
+    def unwrap(args)
+      args.each_with_object({}) do |context, result|
+        next if context.nil?
+        context = Hash[context, true] unless Hash === context
+        result.merge! context
+      end
     end
 
-    def format_float(value)
-      "%.4f" % value
+    def format_float(value, unit: nil)
+      "%.4f#{unit}" % value
     end
 
     def clone_with_context(context)
@@ -112,33 +136,11 @@ module L2meter
       end
     end
 
-    def unwrap(*args)
-      params = Hash === args.last ? args.pop : {}
-      args.compact.map { |key| [key, true] }.to_h.merge(params)
-    end
-
-    def merge_contexts(params)
-      params = current_context.merge(params)
-      source = configuration.source
-      params = { source: source }.merge(params) if source
-
-      if start_time = @start_times.last
-        elapsed = Time.now - start_time
-        params = merge_elapsed(elapsed, params)
-      end
-
-      params
-    end
-
-    def merge_elapsed(elapsed, params)
-      params.merge(elapsed: "%.4fs" % elapsed)
-    end
-
-    def current_context
-      contexts_queue.inject({}) do |result, context|
+    def current_contexts
+      contexts_queue.map do |context|
         context = context.call if context.respond_to?(:call)
-        result.merge(unwrap(context))
-      end.to_a.reverse.to_h
+        context
+      end
     end
 
     def format_value(value)
@@ -168,9 +170,9 @@ module L2meter
       hash.each_with_object({}) { |(k, v), a| a[format_key(k)] = v }
     end
 
-    def write(params)
+    def write(params = nil)
       merge! params
-      flush_buffer if @autoflush
+      fire! if @autoflush
     end
 
     def log_with_prefix(method, key, value, unit: nil)
@@ -178,29 +180,25 @@ module L2meter
       log Hash["#{method}##{key}", value]
     end
 
-    def wrap(params)
-      write params.merge(at: :start)
+    def wrap
+      start_time = Time.now
+      params = @buffer.clone
+      write at: :start
+      result = exception = nil
 
-      result, error, elapsed = execute_with_elapsed(&proc)
-
-      status = if error
-        { at: :exception, exception: error.class, message: error.message.strip }
-      else
-        { at: :finish }
+      begin
+        result = yield
+        merge! params, at: :finish
+      rescue Object => exception
+        merge! params, at: :exception, exception: exception.class, message: exception.message
       end
 
-      write params.merge(merge_elapsed(elapsed, status))
+      elapse! start_time
+      write
 
-      raise error if error
+      raise exception if exception
 
       result
-    end
-
-    def execute_with_elapsed
-      time_at_start = Time.now
-      [yield, nil, Time.now - time_at_start]
-    rescue Object => exception
-      [nil, exception, Time.now - time_at_start]
     end
 
     def contexts_queue
@@ -211,18 +209,9 @@ module L2meter
       [configuration.output, *@outputs].compact
     end
 
-    def flush_buffer
-      tokens = @buffer.map do |key, value|
-        next if value.nil?
-        key = format_key(key)
-        value == true ? key : "#{key}=#{format_value(value)}"
-      end.compact
-
-      tokens.sort! if configuration.sort?
-
-      output_queue.last.print [*tokens].join(" ") + "\n" if tokens.any?
-    ensure
-      @buffer.clear
+    def elapse!(since = @start_times.last)
+      return unless since
+      merge! elapsed: format_float(Time.now - since, unit: ?s)
     end
   end
 end

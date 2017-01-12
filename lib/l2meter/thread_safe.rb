@@ -12,8 +12,10 @@ module L2meter
       batch
       configuration
       count
+      fire!
       log
       measure
+      merge!
       push_context
       sample
       silence

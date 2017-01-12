@@ -323,7 +323,7 @@ describe L2meter::Emitter do
           end
         end
 
-        expect(output).to eq("bar=bar foo=foo hello=world\n")
+        expect(output).to eq("foo=foo bar=bar hello=world\n")
       end
 
       it "prefers internal context over the external one" do
@@ -382,7 +382,7 @@ describe L2meter::Emitter do
           contexted.log hello: :world
         end
 
-        expect(output).to eq("fizz=buzz foo=bar hello=world\n")
+        expect(output).to eq("foo=bar fizz=buzz hello=world\n")
       end
     end
   end
