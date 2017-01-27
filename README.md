@@ -88,7 +88,7 @@ end
 ## Contexted logging
 
 Sometimes you want another copy of the logger with a specific context on it.
-You can created one like so:
+You can create one like so:
 
 ```ruby
 logger = Metrics.context(:super_worker, username: "joe")
@@ -231,9 +231,9 @@ RSpec.configure do |config|
 end
 ```
 
-Note that this code will only silence logger in the current thread. It'll
-still produce ouput if you fire up a new thread. To silence it completely,
-use `disable!` method, like so:
+Note that this code will only silence logger in the current thread. It'll still
+produce output if you fire up a new thread. To silence it completely, use
+`disable!` method, like so:
 
 ```ruby
 # spec/spec_helper.rb
