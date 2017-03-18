@@ -190,7 +190,10 @@ module L2meter
         result = yield
         merge! params, at: :finish
       rescue Object => exception
-        merge! params, at: :exception, exception: exception.class, message: exception.message
+        merge! params, \
+          at: :exception,
+          exception: exception.class,
+          message: exception.message
       end
 
       write elapsed_context(start_time)
@@ -213,7 +216,7 @@ module L2meter
     end
 
     def elapsed_context(since = Time.now)
-      { elapsed: -> { elapsed_value(since) }}
+      { elapsed: -> { elapsed_value(since) } }
     end
 
     def elapsed_value(since)
