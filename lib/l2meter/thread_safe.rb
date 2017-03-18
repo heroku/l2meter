@@ -8,31 +8,26 @@ module L2meter
   class ThreadSafe
     extend Forwardable
 
-    EMITTER_METHODS = %i[
-      batch
-      configuration
-      count
-      fire!
-      log
-      measure
-      merge!
-      push_context
-      sample
-      silence
-      silence!
-      unique
-      unsilence!
-      with_elapsed
-      with_output
-    ]
-
-    private_constant :EMITTER_METHODS
-
     def initialize(emitter)
       @emitter = emitter.freeze
     end
 
-    def_delegators :receiver, *EMITTER_METHODS
+    def_delegators :receiver, \
+      :batch,
+      :configuration,
+      :count,
+      :fire!,
+      :log,
+      :measure,
+      :merge!,
+      :push_context,
+      :sample,
+      :silence,
+      :silence!,
+      :unique,
+      :unsilence!,
+      :with_elapsed,
+      :with_output
 
     def context(*args, &block)
       value = current_emitter.context(*args, &block)
