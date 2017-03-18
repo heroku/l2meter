@@ -98,7 +98,7 @@ module L2meter
 
       tokens.sort! if configuration.sort?
 
-      output_queue.last.print [*tokens].join(" ") + "\n" if tokens.any?
+      output_queue.last.print tokens.join(SPACE) << NL if tokens.any?
     ensure
       @buffer.clear
     end
@@ -110,6 +110,11 @@ module L2meter
     end
 
     private
+
+    SPACE = " ".freeze
+    NL    = "\n".freeze
+
+    private_constant :SPACE, :NL
 
     def unwrap(args)
       args.each_with_object({}) do |context, result|
