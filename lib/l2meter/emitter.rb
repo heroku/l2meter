@@ -123,7 +123,6 @@ module L2meter
     def build_token(key, value)
       value = value.call if Proc === value
       return if value.nil?
-      key = format_key(key)
       value = scrub_value(key, value)
       return if value.nil?
       value == true ? key : "#{key}=#{format_value(value)}"
@@ -165,12 +164,11 @@ module L2meter
       end
     end
 
-    def format_key(key)
-      configuration.key_formatter.call(key)
-    end
-
     def format_keys(hash)
-      hash.each_with_object({}) { |(k, v), a| a[format_key(k)] = v }
+      hash.each_with_object({}) do |(key, value), acc|
+        key = configuration.key_formatter.call(key)
+        acc[key] = value
+      end
     end
 
     def write(params = nil)
