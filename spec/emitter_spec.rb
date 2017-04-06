@@ -61,6 +61,17 @@ describe L2meter::Emitter do
       expect(output).to eq("foo-bar hello-world fizz-buzz=fizz_buzz\n")
     end
 
+    describe "with a configured scrubber" do
+      before do
+        configuration.scrubber = -> (args) { args["foo"] = "****" }
+      end
+
+      it "modifies the output to log" do
+        subject.log foo: 1.23456789
+        expect(output).to eq("foo=\"****\"\n")
+      end
+    end
+
     describe "value formatter" do
       it "formats plain strings" do
         subject.log foo: "bar"

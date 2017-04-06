@@ -58,4 +58,9 @@ describe L2meter::Configuration do
     subject.float_precision = 5
     expect(subject.float_precision).to eq(5)
   end
+
+  it "allows setting a scrubber" do
+    subject.scrubber = -> (args) { args[:foo] = 42 }
+    expect(subject.scrubber).to be_a_kind_of(Proc)
+  end
 end
