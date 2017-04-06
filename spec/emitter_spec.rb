@@ -387,7 +387,7 @@ describe L2meter::Emitter do
     describe "mixed" do
       it "creating contexted emitter should not affect original emitter" do
         subject.context foo: :bar do
-          subject.context(fizz: :buzz)
+          subject.context fizz: :buzz
           subject.log hello: :world
         end
 
@@ -567,5 +567,42 @@ describe L2meter::Emitter do
 
     expect(output).to be_empty
     expect(other_output.tap(&:rewind).read).to eq("foo=bar\n")
+  end
+
+  describe "scrubbing" do
+    it "scrubs based on key name" do
+      configuration.scrubber = ->(key, value) do
+        key =~ /password/ ? "[scrubbed]" : value
+      end
+
+      subject.log hello: :world, my_password: "this should be scrubbed"
+      expect(output).to eq("hello=world my-password=[scrubbed]\n")
+    end
+
+    it "scrubs based on value" do
+      configuration.scrubber = ->(key, value) do
+        value =~ /secret/ ? "[scrubbed]" : value
+      end
+
+      subject.log \
+        hello: :world,
+        my_password: "this secret schould be scrubbed",
+        other_field: -> { "also secret, should be scrubbed" }
+
+      expect(output).to eq("hello=world my-password=[scrubbed] other-field=[scrubbed]\n")
+    end
+
+    it "allows to omit tokens when value is nil" do
+      configuration.scrubber = ->(key, value) do
+        value =~ /secret/ ? nil : value
+      end
+
+      subject.log \
+        hello: :world,
+        my_password: "this secret schould be scrubbed",
+        other_field: -> { "also secret, should be scrubbed" }
+
+      expect(output).to eq("hello=world\n")
+    end
   end
 end

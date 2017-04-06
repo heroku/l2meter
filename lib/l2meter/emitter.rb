@@ -90,12 +90,8 @@ module L2meter
     end
 
     def fire!
-      tokens = @buffer.map do |key, value|
-        next if value.nil?
-        key = format_key(key)
-        value == true ? key : "#{key}=#{format_value(value)}"
-      end.compact
-
+      tokens = @buffer.map { |key, value| build_token(key, value) }
+      tokens.compact!
       tokens.sort! if configuration.sort?
 
       output_queue.last.print tokens.join(SPACE) << NL if tokens.any?
@@ -124,6 +120,15 @@ module L2meter
       end
     end
 
+    def build_token(key, value)
+      value = value.call if Proc === value
+      return if value.nil?
+      key = format_key(key)
+      value = scrub_value(key, value)
+      return if value.nil?
+      value == true ? key : "#{key}=#{format_value(value)}"
+    end
+
     def format_float(value, unit: nil)
       "%.#{configuration.float_precision}f#{unit}" % value
     end
@@ -143,7 +148,7 @@ module L2meter
 
     def format_value(value)
       case value
-      when /[^\w,.:@-]/
+      when /[^\w,.:@\-\]\[]/
         value.strip.gsub(/\s+/, " ").inspect
       when String
         value.to_s
@@ -151,8 +156,6 @@ module L2meter
         format_float(value)
       when Time
         value.iso8601
-      when Proc
-        format_value(value.call)
       when Hash
         format_value(value.inspect)
       when Array
@@ -221,6 +224,14 @@ module L2meter
 
     def elapsed_value(since)
       format_float(Time.now - since, unit: ?s)
+    end
+
+    def scrub_value(key, value)
+      if scrubber = configuration.scrubber
+        scrubber.call(key, value)
+      else
+        value
+      end
     end
   end
 end

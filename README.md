@@ -206,6 +206,26 @@ config.prefix = "my-app"
 Metrics.count :users, 100500 # => count#my-app.users=100500
 ```
 
+## Scrubbing
+
+L2meter allows plugging in custom scrubbing logic that might be useful in
+environments where logging compliance is important.
+
+```ruby
+config.scrubber = ->(key, value) do
+  begin
+    uri = URI.parse(value)
+    uri.password = "scrubbed" if uri.password
+    uri.to_s
+  rescue URI::Error
+    value
+  end
+end
+
+Metric.log my_url: "https://user:password@example.com"
+# => my-url="https://user:redacted@example.com"
+```
+
 ## Silence
 
 There's a way to temporary silence the log emitter. This might be userful for
