@@ -1,7 +1,7 @@
 module L2meter
   class Configuration
     attr_writer :output
-    attr_accessor :source, :prefix, :float_precision
+    attr_accessor :source, :prefix, :float_precision, :scrubber
     attr_reader :context, :key_formatter, :output
 
     DEFAULT_KEY_FORMATTER = ->(key) do

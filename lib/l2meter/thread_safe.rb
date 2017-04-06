@@ -22,6 +22,7 @@ module L2meter
       :merge!,
       :push_context,
       :sample,
+      :scrub!,
       :silence,
       :silence!,
       :unique,

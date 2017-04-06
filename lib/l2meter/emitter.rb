@@ -89,6 +89,10 @@ module L2meter
       @buffer.merge! format_keys(unwrap(args))
     end
 
+    def scrub!
+      configuration.scrubber.call(@buffer)
+    end
+
     def fire!
       tokens = @buffer.map do |key, value|
         next if value.nil?
@@ -172,6 +176,7 @@ module L2meter
 
     def write(params = nil)
       merge! params
+      scrub! if configuration.scrubber
       fire! if @autoflush
     end
 
