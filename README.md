@@ -226,6 +226,8 @@ Metric.log my_url: "https://user:password@example.com"
 # => my-url="https://user:redacted@example.com"
 ```
 
+Note that returning nil value will make l2meter omit the field completely.
+
 ## Silence
 
 There's a way to temporary silence the log emitter. This might be userful for
