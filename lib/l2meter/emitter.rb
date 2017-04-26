@@ -219,11 +219,7 @@ module L2meter
     end
 
     def elapsed_context(since = Time.now)
-      { elapsed: -> { elapsed_value(since) } }
-    end
-
-    def elapsed_value(since)
-      format_float(Time.now - since, unit: ?s)
+      { elapsed: -> { Time.now - since } }
     end
 
     def scrub_value(key, value)

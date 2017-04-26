@@ -182,7 +182,7 @@ describe L2meter::Emitter do
         end
       end
 
-      expect(output).to eq("foo at=start\nbar\nfoo at=finish elapsed=3.0000s\n")
+      expect(output).to eq("foo at=start\nbar\nfoo at=finish elapsed=3.0000\n")
     end
 
     it "does not interrupt throw/catch" do
@@ -218,7 +218,7 @@ describe L2meter::Emitter do
       end
 
       expect(&action).to raise_error(Exception, "hello world")
-      expect(output).to eq("foo at=start\nbar\nfoo at=exception exception=Exception message=\"hello world\" elapsed=3.0000s\n")
+      expect(output).to eq("foo at=start\nbar\nfoo at=exception exception=Exception message=\"hello world\" elapsed=3.0000\n")
     end
 
     it "logs context" do
@@ -274,7 +274,7 @@ describe L2meter::Emitter do
         subject.log :baz
       end
 
-      expect(output).to eq("elapsed=3.0000s foo\nelapsed=6.0000s bar\nbaz\n")
+      expect(output).to eq("elapsed=3.0000 foo\nelapsed=6.0000 bar\nbaz\n")
     end
   end
 
