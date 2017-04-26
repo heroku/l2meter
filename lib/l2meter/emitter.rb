@@ -71,8 +71,10 @@ module L2meter
 
     def clone
       cloned_contexts = @contexts.clone
+      cloned_outputs = @outputs.clone
       self.class.new(configuration: configuration).instance_eval do
         @contexts = cloned_contexts
+        @outputs = cloned_outputs
         self
       end
     end

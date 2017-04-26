@@ -282,6 +282,8 @@ describe L2meter::Emitter do
     it "prevents from loggin to the output" do
       subject.silence do
         subject.log :foo
+        contexted = subject.context(:hello)
+        contexted.log :world
       end
 
       expect(output).to be_empty
