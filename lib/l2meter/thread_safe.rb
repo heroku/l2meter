@@ -12,22 +12,7 @@ module L2meter
       @emitter = emitter.freeze
     end
 
-    def_delegators :receiver, \
-      :batch,
-      :configuration,
-      :count,
-      :fire!,
-      :log,
-      :measure,
-      :merge!,
-      :push_context,
-      :sample,
-      :silence,
-      :silence!,
-      :unique,
-      :unsilence!,
-      :with_elapsed,
-      :with_output
+    def_delegators :receiver, *Emitter.instance_methods(false)
 
     def context(*args, &block)
       value = current_emitter.context(*args, &block)
