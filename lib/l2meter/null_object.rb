@@ -1,12 +1,11 @@
 module L2meter
   class NullObject
-    # Silence forwardable stdlib warnings about forwarding private metods.
-    def log(*)
-      super
+    Emitter.instance_methods(false).each do |method_name|
+      define_method method_name do |*, &block|
+        block && block.call
+      end
     end
 
-    def method_missing(*)
-      yield if block_given?
-    end
+    def print(*); end
   end
 end
