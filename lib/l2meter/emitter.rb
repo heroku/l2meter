@@ -88,7 +88,10 @@ module L2meter
     end
 
     def merge!(*args)
-      @buffer.merge! format_keys(unwrap(args))
+      unwrap(args).each do |key, value|
+        key = configuration.key_formatter.call(key)
+        @buffer[key] = value
+      end
     end
 
     def fire!
@@ -162,13 +165,6 @@ module L2meter
 
     def format_string_value(value)
       value =~ /[^\w,.:@\-\]\[]/ ? value.strip.gsub(/\s+/, " ").inspect : value.to_s
-    end
-
-    def format_keys(hash)
-      hash.each_with_object({}) do |(key, value), acc|
-        key = configuration.key_formatter.call(key)
-        acc[key] = value
-      end
     end
 
     def write(params = nil)
