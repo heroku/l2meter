@@ -149,10 +149,8 @@ module L2meter
 
     def format_value(value)
       case value
-      when /[^\w,.:@\-\]\[]/
-        value.strip.gsub(/\s+/, " ").inspect
       when String
-        value.to_s
+        format_string_value(value)
       when Float
         format_float(value)
       when Time
@@ -164,6 +162,10 @@ module L2meter
       else
         format_value(value.to_s)
       end
+    end
+
+    def format_string_value(value)
+      value =~ /[^\w,.:@\-\]\[]/ ? value.strip.gsub(/\s+/, " ").inspect : value.to_s
     end
 
     def format_keys(hash)
