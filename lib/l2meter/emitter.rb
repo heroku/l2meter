@@ -149,18 +149,14 @@ module L2meter
 
     def format_value(value)
       case value
-      when String
-        format_string_value(value)
       when Float
         format_float(value)
       when Time
         value.iso8601
-      when Hash
-        format_value(value.inspect)
       when Array
         value.map(&method(:format_value)).join(?,)
       else
-        format_value(value.to_s)
+        format_string_value(value.to_s)
       end
     end
 
