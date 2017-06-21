@@ -80,11 +80,12 @@ module L2meter
     end
 
     def batch
+      autoflush = @autoflush
       @autoflush = false
       yield
     ensure
-      @autoflush = true
-      fire!
+      @autoflush = autoflush
+      write
     end
 
     def merge!(*args)

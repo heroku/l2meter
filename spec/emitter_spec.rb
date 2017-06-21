@@ -559,6 +559,21 @@ describe L2meter::Emitter do
 
       expect(output).to eq("elapsed=20\n")
     end
+
+    it "allows nested batch calls" do
+      subject.batch do
+        subject.log a: 1
+
+        subject.batch do
+          subject.log b: 2
+          subject.log c: 3
+        end
+
+        subject.log d: 4
+      end
+
+      expect(output).to eq("a=1 b=2 c=3 d=4\n")
+    end
   end
 
   specify "#with_output" do
