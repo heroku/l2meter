@@ -127,7 +127,6 @@ module L2meter
 
     def build_token(key, value)
       value = value.call if Proc === value
-      return if value.nil?
       value = scrub_value(key, value)
       return if value.nil?
       value == true ? key : "#{key}=#{format_value(value)}"
@@ -217,7 +216,7 @@ module L2meter
     end
 
     def scrub_value(key, value)
-      if scrubber = configuration.scrubber
+      if !value.nil? && scrubber = configuration.scrubber
         scrubber.call(key, value)
       else
         value
