@@ -78,8 +78,8 @@ describe L2meter::Emitter do
       end
 
       it "formats symbols as strings" do
-        subject.log foo: :bar
-        expect(output).to eq("foo=bar\n")
+        subject.log foo: :bar, fizz: :__buzz__?
+        expect(output).to eq("foo=bar fizz=\"__buzz__?\"\n")
       end
 
       it "formats integers" do
