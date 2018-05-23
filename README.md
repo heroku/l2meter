@@ -103,7 +103,7 @@ There's also a way to batch several calls into a single log line:
 ```ruby
 Metrics.batch do
   Metrics.log foo: :bar
-  Metrics.unique :registeration, "user@example.com"
+  Metrics.unique :registration, "user@example.com"
   Metrics.count :thing, 10
   Metrics.sample :other_thing, 20
 end # => foo=bar unique#registration=user@example.com count#thing=10 sample#other-thing=20
@@ -215,7 +215,7 @@ environments where logging compliance is important.
 config.scrubber = ->(key, value) do
   begin
     uri = URI.parse(value)
-    uri.password = "scrubbed" if uri.password
+    uri.password = "redacted" if uri.password
     uri.to_s
   rescue URI::Error
     value
