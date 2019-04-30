@@ -52,4 +52,28 @@ describe L2meter::ThreadSafe do
       contexted.log :bar
     end
   end
+
+  it "is actually thread-safe" do
+    output = StringIO.new
+    subject.configuration.output = output
+
+    thread_a = Thread.new do
+      10_000.times do
+        subject.context :bar do
+          subject.log :hi
+        end
+      end
+    end
+
+    thread_b = Thread.new do
+      10_000.times do
+        subject.log :bye
+      end
+    end
+
+    [thread_a, thread_b].each &:join
+
+    lines = output.tap(&:rewind).read.lines.uniq
+    expect(lines).to contain_exactly("bar hi\n", "bye\n")
+  end
 end
