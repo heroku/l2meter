@@ -10,4 +10,10 @@ Gem::Specification.new do |spec|
   spec.license      = "MIT"
   spec.files        = Dir["LICENSE.txt", "README.md", "lib/**/**"]
   spec.require_path = "lib"
+
+  spec.add_development_dependency "bundler", "~> 2.0"
+  spec.add_development_dependency "pry-byebug"
+  spec.add_development_dependency "rake"
+  spec.add_development_dependency "rspec", "~> 3.8.0"
+  spec.add_development_dependency "timecop"
 end
