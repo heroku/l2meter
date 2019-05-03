@@ -86,15 +86,13 @@ def do_work_with_retries
 end
 ```
 
-## Contexted logging
-
-Sometimes you want another copy of the logger with a specific context on it.
-You can create one like so:
+It's possbile to create a dedicated copy of the logger with some specific
+context attached to it.
 
 ```ruby
-super_worker_logger = logger.context(:super_worker, username: "joe")
+worker_logger = logger.context(component: :worker, worker_id: 123)
 
-SuperWorker.new(logger: super_Worker_logger).run # => super-worker username=joe some-other=superworker-output
+MyWorker.new(logger: worker_logger).run # => component=worker worker_id=123 status="doing work"
 ```
 
 ## Batching
