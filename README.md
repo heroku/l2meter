@@ -110,9 +110,9 @@ logger.batch do
 end # => foo=bar unique#registration=user@example.com count#thing=10 sample#other-thing=20
 ```
 
-## Other
+## Metrics
 
-Some [l2met]-specific methods are supported:
+Some [l2met]-specific metrics are supported.
 
 [l2met]: https://r.32k.io/l2met-introduction
 
@@ -129,6 +129,8 @@ logger.sample :db_query, 235, unit: :ms,  # => sample#db-query.ms=235
 logger.unique :user, "bob@example.com"    # => unique#user=bob@example.com
 ```
 
+## Measuring Time
+
 L2meter allows to append elapsed time to log messages automatically.
 
 ```ruby
@@ -140,7 +142,7 @@ logger.with_elapsed do
 end
 ```
 
-### Configuration
+## Configuration
 
 L2meter supports customizable configuration.
 
@@ -152,7 +154,7 @@ end
 
 Here's the full list of available settings.
 
-#### Global context
+### Global context
 
 Global context works similary to context method, but globally:
 
@@ -175,7 +177,7 @@ logger.log :hello # => hello request_id=4209ba28-4a7c-40d6-af69-c2c1ddf51f19
 logger.log :world # => world request_id=b6836b1b-5710-4f5f-926d-91ab9988a7c1
 ```
 
-#### Sorting
+### Sorting
 
 By default l2meter doesn't sort tokens before output, putting them in the order
 they're passed. But it's possible to sort them like so:
@@ -188,7 +190,7 @@ config.sort = true
 logger.log :c, :b, :a  # => a b c
 ```
 
-#### Source
+### Source
 
 Source is a special parameter that'll be appended to all emitted messages.
 
@@ -200,7 +202,7 @@ config.source = "com.heroku.my-application.staging"
 logger.log foo: :bar # => source=com.heroku.my-application.staging foo=bar
 ```
 
-#### Prefix
+### Prefix
 
 Prefix allows to add namespacing to measure/count/unique/sample calls.
 
@@ -212,7 +214,7 @@ config.prefix = "my-app"
 logger.count :users, 100500 # => count#my-app.users=100500
 ```
 
-## Scrubbing
+### Scrubbing
 
 L2meter allows plugging in custom scrubbing logic that might be useful in
 environments where logging compliance is important to prevent accidentally
