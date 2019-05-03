@@ -2,8 +2,7 @@
 [![Gem Version](https://img.shields.io/gem/v/l2meter.svg)](https://rubygems.org/gems/l2meter)
 [![Build Status](https://img.shields.io/travis/heroku/l2meter.svg)](http://travis-ci.com/heroku/l2meter)
 
-L2meter is a little gem that helps you build loggers that outputs things in
-[logfmt]-friendly format.
+L2meter is a little gem for building [logfmt]-compatiable loggers.
 
 [logfmt]: https://www.brandur.org/logfmt
 
@@ -15,8 +14,8 @@ A new logger might be created like so:
 logger = L2meter.build
 ```
 
-If you plan to use it globally across different components of your app,
-consider making it a constant.
+Consider making the logger a constant to make it easier to use across different
+components of the app or globally.
 
 The base `log` method accepts two type of arguments: bare values and key-value
 pairs in form of hashes.
@@ -26,9 +25,9 @@ logger.log "Hello world"                 # => hello-world
 logger.log :db_query, result: :success   # => db-query result=success
 ```
 
-It can also take a block. In this case the message will be emitted twice, once
-at the start of the execution and once at the end. The end result might look
-like so:
+The method also takes a block. In this case the message will be emitted twice,
+once at the start of the execution and once at the end. The end result might
+look like so:
 
 ```ruby
 logger.log :doing_work do            # => doing-work at=start
@@ -37,14 +36,15 @@ logger.log :doing_work do            # => doing-work at=start
 end                                  # => doing-work at=finish elapsed=1.2345
 ```
 
-In case of the exception inside the block, l2meter will produce output similar
-to this:
+In case of the exception inside the block, all relevant information is logged
+and then exception is re-raised.
 
 ```ruby
 logger.log :doing_work do   # => doing-work at=start
   raise ArgumentError, \    #
     "something is wrong"    #
 end                         # => doing-work at=exception exception=ArgumentError message="something is wrong" elapsed=1.2345
+                            # ArgumentError: something is wrong
 ```
 
 ## Context
