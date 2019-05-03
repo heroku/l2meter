@@ -267,5 +267,5 @@ across all threads.
 
 ```ruby
 # spec/spec_helper.rb
-logger.disable!
+MyLogger.disable!
 ```
