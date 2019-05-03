@@ -3,43 +3,45 @@
 [![Build Status](https://img.shields.io/travis/heroku/l2meter.svg)](http://travis-ci.com/heroku/l2meter)
 
 L2meter is a little gem that helps you build loggers that outputs things in
-l2met-friendly format.
+[logfmt]-friendly format.
+
+[logfmt]: https://www.brandur.org/logfmt
 
 ### Basics
 
 A new logger might be created like so:
 
 ```ruby
-Metrics = L2meter.build
+logger = L2meter.build
 ```
 
-If you plan to use it globally across different components of your app,consider
-making it constant.
+If you plan to use it globally across different components of your app,
+consider making it a constant.
 
-The base `log` method accepts two type of things: bare values and key-value
+The base `log` method accepts two type of arguments: bare values and key-value
 pairs in form of hashes.
 
 ```ruby
-Metrics.log "Hello world"                 # => hello-world
-Metrics.log :db_query, result: :success   # => db-query result=success
+logger.log "Hello world"                 # => hello-world
+logger.log :db_query, result: :success   # => db-query result=success
 ```
 
 It can also take a block. In this case the message will be emitted twice, once
-at the start of the execution and another at the end. The end result might look
+at the start of the execution and once at the end. The end result might look
 like so:
 
 ```ruby
-Metrics.log :doing_work do            # => doing-work at=start
-  do_some_work                        #
-  Metrics.log :work_done              # => work-done
-end                                   # => doing-work at=finish elapsed=1.2345
+logger.log :doing_work do            # => doing-work at=start
+  do_some_work                       #
+  logger.log :work_done              # => work-done
+end                                  # => doing-work at=finish elapsed=1.2345
 ```
 
-In case the exception is raised inside the block, l2meter will report is like
-so:
+In case of the exception inside the block, l2meter will produce output similar
+to this:
 
 ```ruby
-Metrics.log :doing_work do  # => doing-work at=start
+logger.log :doing_work do   # => doing-work at=start
   raise ArgumentError, \    #
     "something is wrong"    #
 end                         # => doing-work at=exception exception=ArgumentError message="something is wrong" elapsed=1.2345
@@ -53,7 +55,7 @@ L2meter allows setting context for a block. It might work something like this:
 def do_work_with_retries
   attempt = 1
   begin
-    Metrics.context attempt: attempt do
+    logger.context attempt: attempt do
       do_some_work            # => doing-work attempt=1
                               # => doing-work attempt=2
                               # => doing-work attempt=3
@@ -68,12 +70,12 @@ end
 L2meter supports dynamic contexts as well. You can pass a proc instead of raw
 value in order to use it.
 
-The same example as above could be re-written like this instead:
+The example above could be re-written like this instead:
 
 ```ruby
 def do_work_with_retries
   attempt = 1
-  Metrics.context ->{{ attempt: attempt }} do
+  logger.context ->{{ attempt: attempt }} do
     begin
       do_some_work
     rescue => error
@@ -90,63 +92,65 @@ Sometimes you want another copy of the logger with a specific context on it.
 You can create one like so:
 
 ```ruby
-logger = Metrics.context(:super_worker, username: "joe")
+super_worker_logger = logger.context(:super_worker, username: "joe")
 
-SuperWorker.new(logger: logger).run # => super-worker username=joe some-other=superworker-output
+SuperWorker.new(logger: super_Worker_logger).run # => super-worker username=joe some-other=superworker-output
 ```
 
 ## Batching
 
-There's also a way to batch several calls into a single log line:
+There's a way to batch several calls into a single log line:
 
 ```ruby
-Metrics.batch do
-  Metrics.log foo: :bar
-  Metrics.unique :registration, "user@example.com"
-  Metrics.count :thing, 10
-  Metrics.sample :other_thing, 20
+logger.batch do
+  logger.log foo: :bar
+  logger.unique :registration, "user@example.com"
+  logger.count :thing, 10
+  logger.sample :other_thing, 20
 end # => foo=bar unique#registration=user@example.com count#thing=10 sample#other-thing=20
 ```
 
 ## Other
 
-Some other l2met-specific methods are supported.
+Some [l2met]-specific methods are supported:
+
+[l2met]: https://r.32k.io/l2met-introduction
 
 ```ruby
-Metrics.count :user_registered             # => count#user-registered=1
-Metrics.count :registered_users, 10        # => count#registered-users=10
+logger.count :user_registered             # => count#user-registered=1
+logger.count :registered_users, 10        # => count#registered-users=10
 
-Metrics.measure :connection_count, 20      # => measure#connection-count=20
-Metrics.measure :db_query, 235, unit: :ms, # => measure#db-query.ms=235
+logger.measure :connection_count, 20      # => measure#connection-count=20
+logger.measure :db_query, 235, unit: :ms, # => measure#db-query.ms=235
 
-Metrics.sample :connection_count, 20,      # => sample#connection-count=235
-Metrics.sample :db_query, 235, unit: :ms,  # => sample#db-query.ms=235
+logger.sample :connection_count, 20,      # => sample#connection-count=235
+logger.sample :db_query, 235, unit: :ms,  # => sample#db-query.ms=235
 
-Metrics.unique :user, "bob@example.com"    # => unique#user=bob@example.com
+logger.unique :user, "bob@example.com"    # => unique#user=bob@example.com
 ```
 
-L2meter also allows to append elapsed time to your log messages automatically.
+L2meter allows to append elapsed time to log messages automatically.
 
 ```ruby
-Metrics.with_elapsed do
+logger.with_elapsed do
   do_work_step_1
-  Metrics.log :step_1_done # => step-1-done elapsed=1.2345
+  logger.log :step_1_done # => step-1-done elapsed=1.2345
   do_work_step_2
-  Metrics.log :step_2_done # => step-2-done elapsed=2.3456
+  logger.log :step_2_done # => step-2-done elapsed=2.3456
 end
 ```
 
 ### Configuration
 
-L2meter supports configuration. Here's how you can configure things:
+L2meter supports customizable configuration.
 
 ```ruby
-Metrics = L2meter.build do |config|
+logger = L2meter.build do |config|
   # configuration happens here
 end
 ```
 
-Here's the list of all configurable things:
+Here's the full list of available settings.
 
 #### Global context
 
@@ -157,28 +161,31 @@ config.context = { app_name: "my-app-name" }
 
 # ...
 
-Metrics.log foo: :bar # => app-name=my-app-name foo=bar
+logger.log foo: :bar # => app-name=my-app-name foo=bar
 ```
 
 Dynamic context is also supported:
 
 ```ruby
 config.context do
-  { request_id: CurrentContext.request_id }
+  { request_id: SecureRandom.uuid }
 end
+
+logger.log :hello # => hello request_id=4209ba28-4a7c-40d6-af69-c2c1ddf51f19
+logger.log :world # => world request_id=b6836b1b-5710-4f5f-926d-91ab9988a7c1
 ```
 
 #### Sorting
 
 By default l2meter doesn't sort tokens before output, putting them in the order
-they're passed. But you can make it sorted like so:
+they're passed. But it's possible to sort them like so:
 
 ```ruby
 config.sort = true
 
 # ...
 
-Metrics.log :c, :b, :a  # => a b c
+logger.log :c, :b, :a  # => a b c
 ```
 
 #### Source
@@ -186,32 +193,33 @@ Metrics.log :c, :b, :a  # => a b c
 Source is a special parameter that'll be appended to all emitted messages.
 
 ```ruby
-config.source = "production"
+config.source = "com.heroku.my-application.staging"
 
 # ...
 
-Metrics.log foo: :bar # => source=production foo=bar
+logger.log foo: :bar # => source=com.heroku.my-application.staging foo=bar
 ```
 
 #### Prefix
 
-Prefix allows namespacing your measure/count/unique/sample calls.
+Prefix allows to add namespacing to measure/count/unique/sample calls.
 
 ```ruby
 config.prefix = "my-app"
 
 # ...
 
-Metrics.count :users, 100500 # => count#my-app.users=100500
+logger.count :users, 100500 # => count#my-app.users=100500
 ```
 
 ## Scrubbing
 
 L2meter allows plugging in custom scrubbing logic that might be useful in
-environments where logging compliance is important.
+environments where logging compliance is important to prevent accidentally
+leaking sensitive information.
 
 ```ruby
-config.scrubber = ->(key, value) do
+config.scrubber = -> (key, value) do
   begin
     uri = URI.parse(value)
     uri.password = "redacted" if uri.password
@@ -221,7 +229,7 @@ config.scrubber = ->(key, value) do
   end
 end
 
-Metric.log my_url: "https://user:password@example.com"
+logger.log my_url: "https://user:password@example.com"
 # => my-url="https://user:redacted@example.com"
 ```
 
@@ -233,13 +241,13 @@ There's a way to temporary silence the log emitter. This might be userful for
 tests for example.
 
 ```ruby
-Metrics.silence do
+logger.silence do
   # logger is completely silenced
-  Metrics.log "hello world" # nothing is emitted here
+  logger.log "hello world" # nothing is emitted here
 end
 
 # works normally again
-Metrics.log :foo            # => foo
+logger.log :foo            # => foo
 ```
 
 The typical setup for RSpec might look like this:
@@ -247,16 +255,17 @@ The typical setup for RSpec might look like this:
 ```ruby
 RSpec.configure do |config|
   config.around :each do |example|
-    Metrics.silence &example
+    MyLogger.silence &example
   end
 end
 ```
 
-Note that this code will only silence logger in the current thread. It'll still
-produce output if you fire up a new thread. To silence it completely, use
-`disable!` method, like so:
+Note that silence method will only suppress logging in the current thread.
+It'll still produce output if you fire up a new thread. To silence it
+completely, use `disable!` method. This will completely silence the logger
+across all threads.
 
 ```ruby
 # spec/spec_helper.rb
-Metrics.disable!
+logger.disable!
 ```
