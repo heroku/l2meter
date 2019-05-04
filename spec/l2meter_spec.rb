@@ -12,7 +12,7 @@ describe L2meter do
       config = configuration
     end
 
-    expect(emitter).to be_kind_of(described_class::ThreadSafe)
+    expect(emitter).to be_kind_of(described_class::Emitter)
     expect(config).to eq(emitter.configuration)
   end
 end

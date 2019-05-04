@@ -6,7 +6,7 @@ describe L2meter::Emitter do
   let(:io) { StringIO.new }
   let(:output) { io.tap(&:rewind).read }
 
-  subject { L2meter::ThreadSafe.new(emitter) }
+  subject { emitter }
 
   before { configuration.output = io }
 
@@ -128,7 +128,8 @@ describe L2meter::Emitter do
         counter = 0
         value = -> { counter += 1 }
         subject.log foo: value, bar: value
-        expect(output).to eq("foo=1 bar=2\n")
+        subject.log foo: value, bar: value
+        expect(output).to eq("foo=1 bar=2\nfoo=3 bar=4\n")
       end
 
       it "formats modules/classes" do
@@ -279,7 +280,7 @@ describe L2meter::Emitter do
   end
 
   describe "#silence" do
-    it "prevents from loggin to the output" do
+    it "prevents from logging to the output" do
       subject.silence do
         subject.log :foo
         contexted = subject.context(:hello)
@@ -620,6 +621,81 @@ describe L2meter::Emitter do
         other_field: -> { "also secret, should be scrubbed" }
 
       expect(output).to eq("hello=world\n")
+    end
+  end
+
+  describe "thread-safety" do
+    around { |example| Timecop.freeze &example }
+
+    # this test is really crazy, but it works nice to prove that state
+    # management is isolated per thread and logger is not stepping on its own
+    # toes when called from multiple threads simulteneously
+
+    it "is actually thread-safe" do
+      thread_a = Thread.new do
+        1_000.times do
+          # => thread=a line=1
+          subject.context thread: :a do
+            subject.log line: 1
+          end
+        end
+      end
+
+      thread_b = Thread.new do
+        b_logger = subject.context(thread: :b)
+
+        1_000.times do
+          # => thread=b line=2
+          b_logger.log line: 2
+        end
+      end
+
+      thread_c = Thread.new do
+        1_000.times do
+          # => thread=c at=start
+          # => line=3
+          # => thread=c at=finish elapsed=0.0000
+          subject.log thread: :c do
+            subject.log line: 3
+          end
+        end
+      end
+
+      thread_d = Thread.new do
+        other_output = StringIO.new
+
+        1_000.times do
+          subject.with_output other_output do
+            subject.log thread: :d, line: 5
+          end
+        end
+      end
+
+      thread_e = Thread.new do
+        1_000.times do
+          subject.silence do
+            subject.log thread: :e, line: 6
+          end
+        end
+      end
+
+      [
+        thread_a,
+        thread_b,
+        thread_c,
+        thread_d,
+        thread_e
+      ].each &:join
+
+      lines = output.lines.uniq
+
+      expect(lines).to contain_exactly(
+        "thread=a line=1\n",
+        "thread=b line=2\n",
+        "thread=c at=start\n",
+        "line=3\n",
+        "thread=c at=finish elapsed=0.0000\n"
+      )
     end
   end
 end
