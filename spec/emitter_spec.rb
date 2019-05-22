@@ -625,16 +625,15 @@ describe L2meter::Emitter do
   end
 
   describe "thread-safety" do
-    around { |example| Timecop.freeze &example }
+    around { |example| Timecop.freeze(&example) }
 
     # this test is really crazy, but it works nice to prove that state
     # management is isolated per thread and logger is not stepping on its own
     # toes when called from multiple threads simulteneously
-
     it "is actually thread-safe" do
       thread_a = Thread.new do
         1_000.times do
-          # => thread=a line=1
+          #=> thread=a line=1
           subject.context thread: :a do
             subject.log line: 1
           end
@@ -645,27 +644,27 @@ describe L2meter::Emitter do
         b_logger = subject.context(thread: :b)
 
         1_000.times do
-          # => thread=b line=2
+          #=> thread=b line=2
           b_logger.log line: 2
         end
       end
 
       thread_c = Thread.new do
         1_000.times do
-          # => thread=c at=start
-          # => line=3
-          # => thread=c at=finish elapsed=0.0000
+          #=> thread=c at=start
+          #=> line=3
+          #=> thread=c at=finish elapsed=0.0000
           subject.log thread: :c do
             subject.log line: 3
           end
         end
       end
 
+      other_output = StringIO.new
       thread_d = Thread.new do
-        other_output = StringIO.new
-
         1_000.times do
           subject.with_output other_output do
+            #=> thread=d line=5
             subject.log thread: :d, line: 5
           end
         end
@@ -685,17 +684,20 @@ describe L2meter::Emitter do
         thread_c,
         thread_d,
         thread_e
-      ].each &:join
+      ].each(&:join)
 
-      lines = output.lines.uniq
+      lines = output.lines(chomp: true).uniq
+      other_lines = other_output.tap(&:rewind).lines(chomp: true).uniq
 
       expect(lines).to contain_exactly(
-        "thread=a line=1\n",
-        "thread=b line=2\n",
-        "thread=c at=start\n",
-        "line=3\n",
-        "thread=c at=finish elapsed=0.0000\n"
+        "thread=a line=1",
+        "thread=b line=2",
+        "thread=c at=start",
+        "line=3",
+        "thread=c at=finish elapsed=0.0000"
       )
+
+      expect(other_lines).to contain_exactly("thread=d line=5")
     end
   end
 end
