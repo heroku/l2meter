@@ -1,8 +1,8 @@
 module L2meter
   class Configuration
-    attr_writer :output
+    attr_writer :context, :output
     attr_accessor :source, :prefix, :float_precision, :scrubber
-    attr_reader :context, :key_formatter, :output
+    attr_reader :key_formatter, :output
 
     DEFAULT_KEY_FORMATTER = ->(key) do
       key.to_s.strip.downcase.gsub(/[^-a-z\d.#]+/, ?-)
@@ -36,7 +36,5 @@ module L2meter
         @context
       end
     end
-
-    attr_writer :context
   end
 end
