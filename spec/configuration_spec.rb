@@ -19,7 +19,7 @@ describe L2meter::Configuration do
 
   it "allows to specify key formatter" do
     formatter = ->{}
-    subject.format_keys &formatter
+    subject.format_keys(&formatter)
     expect(subject.key_formatter).to eq(formatter)
   end
 

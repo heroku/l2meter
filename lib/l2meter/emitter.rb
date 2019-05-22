@@ -13,7 +13,7 @@ module L2meter
       merge! current_context, *args
 
       if block_given?
-        wrap &proc
+        wrap(&proc)
       else
         write
       end
@@ -101,7 +101,7 @@ module L2meter
     end
 
     def write(*args)
-      merge! *args
+      merge!(*args)
       fire! unless in_batch?
     end
 

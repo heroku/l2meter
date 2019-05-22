@@ -160,7 +160,7 @@ describe L2meter::Emitter do
     end
 
     it "uses configuration to format keys" do
-      configuration.format_keys &:upcase
+      configuration.format_keys(&:upcase)
       subject.log :foo
       expect(output).to eq("FOO\n")
     end
