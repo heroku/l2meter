@@ -52,7 +52,7 @@ describe L2meter::Emitter do
     end
 
     it "never outputs the same token twice" do
-      subject.log foo: 1, "fOO " => 2, " Foo" => 3, "foo" => 4
+      subject.log :foo => 1, "fOO " => 2, " Foo" => 3, "foo" => 4
       expect(output).to eq("foo=4\n")
     end
 
@@ -145,7 +145,7 @@ describe L2meter::Emitter do
           false,
           :foo,
           Time.utc(2017, 1, 1, 1, 1, 1),
-          Date.new(2017, 1, 1)
+          Date.new(2017, 1, 1),
         ]
 
         subject.log foo: array
@@ -187,18 +187,18 @@ describe L2meter::Emitter do
     end
 
     it "does not interrupt throw/catch" do
-      value = catch(:value) do
+      value = catch(:value) {
         subject.log foo: "bar" do
           throw :value, 123
           "foobar"
         end
-      end
+      }
 
       expect(value).to eq(123)
     end
 
     it "returns the block return value" do
-      block = ->{ "return value" }
+      block = -> { "return value" }
       expect(subject.log(foo: :bar, &block)).to eq("return value")
     end
 
@@ -223,7 +223,7 @@ describe L2meter::Emitter do
     end
 
     it "logs context" do
-      configuration.context = { hello: "world" }
+      configuration.context = {hello: "world"}
       subject.log :foo
       subject.log :bar
       expect(output).to eq("hello=world foo\nhello=world bar\n")
@@ -232,14 +232,14 @@ describe L2meter::Emitter do
     it "logs dynamic context" do
       client = double
       expect(client).to receive(:get_id).and_return("abcd").twice
-      configuration.context = ->{{ foo: client.get_id }}
+      configuration.context = -> {{foo: client.get_id}}
       subject.log bar: :bar
       subject.log fizz: :buzz
       expect(output).to eq("foo=abcd bar=bar\nfoo=abcd fizz=buzz\n")
     end
 
     it "allows overriding context with arguments" do
-      configuration.context = { foo: "context" }
+      configuration.context = {foo: "context"}
       subject.log foo: "argument"
       expect(output).to eq("foo=argument\n")
     end
@@ -252,7 +252,7 @@ describe L2meter::Emitter do
         subject.log "hello world"
       end
 
-      expected = String.new.tap do |log|
+      expected = "".tap do |log|
         log << "source=us-west regular-log\n"
         log << "source=us-west key=value\n"
         log << "source=us-west with=context hello-world\n"
@@ -331,7 +331,7 @@ describe L2meter::Emitter do
       it "supports dynamic context" do
         client = double
         expect(client).to receive(:get_id).and_return("abcd")
-        subject.context ->{{ foo: client.get_id }} do
+        subject.context -> {{foo: client.get_id}} do
           subject.log bar: :bar
         end
 
@@ -340,7 +340,7 @@ describe L2meter::Emitter do
 
       it "supports nested context" do
         subject.context foo: :foo do
-          subject.context ->{{ bar: :bar }} do
+          subject.context -> {{bar: :bar}} do
             subject.log hello: :world
           end
         end
@@ -381,7 +381,7 @@ describe L2meter::Emitter do
       end
 
       it "allows to use proc" do
-        contexted = subject.context(->{{ foo: :bar }})
+        contexted = subject.context(-> {{foo: :bar}})
         contexted.log hello: :world
         expect(output).to eq("foo=bar hello=world\n")
       end
@@ -631,25 +631,25 @@ describe L2meter::Emitter do
     # management is isolated per thread and logger is not stepping on its own
     # toes when called from multiple threads simulteneously
     it "is actually thread-safe" do
-      thread_a = Thread.new do
+      thread_a = Thread.new {
         1_000.times do
           #=> thread=a line=1
           subject.context thread: :a do
             subject.log line: 1
           end
         end
-      end
+      }
 
-      thread_b = Thread.new do
+      thread_b = Thread.new {
         b_logger = subject.context(thread: :b)
 
         1_000.times do
           #=> thread=b line=2
           b_logger.log line: 2
         end
-      end
+      }
 
-      thread_c = Thread.new do
+      thread_c = Thread.new {
         1_000.times do
           #=> thread=c at=start
           #=> line=3
@@ -658,32 +658,32 @@ describe L2meter::Emitter do
             subject.log line: 3
           end
         end
-      end
+      }
 
       other_output = StringIO.new
-      thread_d = Thread.new do
+      thread_d = Thread.new {
         1_000.times do
           subject.with_output other_output do
             #=> thread=d line=5
             subject.log thread: :d, line: 5
           end
         end
-      end
+      }
 
-      thread_e = Thread.new do
+      thread_e = Thread.new {
         1_000.times do
           subject.silence do
             subject.log thread: :e, line: 6
           end
         end
-      end
+      }
 
       [
         thread_a,
         thread_b,
         thread_c,
         thread_d,
-        thread_e
+        thread_e,
       ].each(&:join)
 
       lines = output.lines(chomp: true).uniq

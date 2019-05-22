@@ -144,7 +144,7 @@ module L2meter
       {
         at: :exception,
         exception: exception.class,
-        message: exception.message
+        message: exception.message,
       }
     end
 
@@ -156,12 +156,12 @@ module L2meter
       [
         source_context,
         configuration.context,
-        *dynamic_contexts
+        *dynamic_contexts,
       ].compact
     end
 
     def source_context
-      { source: configuration.source }
+      {source: configuration.source}
     end
 
     def resolved_contexts
@@ -251,7 +251,7 @@ module L2meter
     end
 
     def unwrap(args)
-      Hash.new.tap do |result|
+      {}.tap do |result|
         args.each do |arg|
           next if arg.nil?
           arg = Hash[arg, true] unless Hash === arg

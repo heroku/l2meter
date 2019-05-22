@@ -8,9 +8,9 @@ describe L2meter do
   it "allows building an emitter using build method" do
     config = nil
 
-    emitter = described_class.build do |configuration|
+    emitter = described_class.build { |configuration|
       config = configuration
-    end
+    }
 
     expect(emitter).to be_kind_of(described_class::Emitter)
     expect(config).to eq(emitter.configuration)
