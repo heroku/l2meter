@@ -686,18 +686,18 @@ describe L2meter::Emitter do
         thread_e,
       ].each(&:join)
 
-      lines = output.lines(chomp: true).uniq
-      other_lines = other_output.tap(&:rewind).lines(chomp: true).uniq
+      lines = output.lines.uniq
+      other_lines = other_output.tap(&:rewind).read.lines.uniq
 
       expect(lines).to contain_exactly(
-        "thread=a line=1",
-        "thread=b line=2",
-        "thread=c at=start",
-        "line=3",
-        "thread=c at=finish elapsed=0.0000"
+        "thread=a line=1\n",
+        "thread=b line=2\n",
+        "thread=c at=start\n",
+        "line=3\n",
+        "thread=c at=finish elapsed=0.0000\n"
       )
 
-      expect(other_lines).to contain_exactly("thread=d line=5")
+      expect(other_lines).to contain_exactly("thread=d line=5\n")
     end
   end
 end
