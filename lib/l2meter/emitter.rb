@@ -92,7 +92,7 @@ module L2meter
     private
 
     def log_with_prefix(method, key, value, unit: nil)
-      key = [configuration.prefix, key, unit].compact.join(?.)
+      key = [configuration.prefix, key, unit].compact.join(".")
       log Hash["#{method}##{key}", value]
     end
 
@@ -218,7 +218,7 @@ module L2meter
       when Time
         format_time_value(value)
       when Array
-        value.map(&method(:format_value)).join(?,)
+        value.map(&method(:format_value)).join(",")
       else
         format_value(value.to_s)
       end

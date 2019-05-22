@@ -5,7 +5,7 @@ module L2meter
     attr_reader :key_formatter, :output
 
     DEFAULT_KEY_FORMATTER = ->(key) do
-      key.to_s.strip.downcase.gsub(/[^-a-z\d.#]+/, ?-)
+      key.to_s.strip.downcase.gsub(/[^-a-z\d.#]+/, "-")
     end
 
     private_constant :DEFAULT_KEY_FORMATTER
