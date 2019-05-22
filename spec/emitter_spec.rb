@@ -375,7 +375,7 @@ describe L2meter::Emitter do
       end
 
       it "does not affect original emitter" do
-        contexted = subject.context(:foo, :bar, fizz: :buzz)
+        _contexted = subject.context(:foo, :bar, fizz: :buzz)
         subject.log hello: :world
         expect(output).to eq("hello=world\n")
       end
