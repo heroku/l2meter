@@ -36,8 +36,8 @@ logger.log :doing_work do            # => doing-work at=start
 end                                  # => doing-work at=finish elapsed=1.2345
 ```
 
-In case of the exception inside the block, all relevant information is logged
-and then exception is re-raised.
+In case of an exception inside the block, all relevant information is logged
+and then the exception is re-raised.
 
 ```ruby
 logger.log :doing_work do   # => doing-work at=start
@@ -86,7 +86,7 @@ def do_work_with_retries
 end
 ```
 
-It's possbile to create a dedicated copy of the logger with some specific
+It's possible to create a dedicated copy of the logger with some specific
 context attached to it.
 
 ```ruby
@@ -154,7 +154,7 @@ Here's the full list of available settings.
 
 ### Global context
 
-Global context works similary to context method, but globally:
+Global context works similarly to context method, but globally:
 
 ```ruby
 config.context = { app_name: "my-app-name" }
@@ -237,7 +237,7 @@ Note that returning nil value will make l2meter omit the field completely.
 
 ## Silence
 
-There's a way to temporary silence the log emitter. This might be userful for
+There's a way to temporary silence the log emitter. This might be useful for
 tests for example.
 
 ```ruby
