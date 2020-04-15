@@ -15,6 +15,7 @@ module L2meter
       @key_formatter = DEFAULT_KEY_FORMATTER
       @output = $stdout
       @float_precision = 4
+      @context = nil
     end
 
     def format_keys(&block)

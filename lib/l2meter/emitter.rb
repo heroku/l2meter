@@ -9,19 +9,19 @@ module L2meter
       @configuration = configuration
     end
 
-    def log(*args)
-      merge! current_context, *args
+    def log(*args, &block)
+      merge!(current_context, *args)
 
-      if block_given?
-        wrap(&proc)
+      if block
+        wrap(&block)
       else
         write
       end
     end
 
-    def context(*context_data)
-      if block_given?
-        wrap_context(context_data, &proc)
+    def context(*context_data, &block)
+      if block
+        wrap_context(context_data, &block)
       else
         contexted(context_data)
       end
@@ -33,8 +33,8 @@ module L2meter
       end
     end
 
-    def silence
-      with_output(NullOutput.new, &proc)
+    def silence(&block)
+      with_output(NullOutput.new, &block)
     end
 
     def silence!
@@ -62,12 +62,12 @@ module L2meter
       write
     end
 
-    def measure(*args)
-      log_with_prefix :measure, *args
+    def measure(metric, value, **args)
+      log_with_prefix(:measure, metric, value, **args)
     end
 
-    def sample(*args)
-      log_with_prefix :sample, *args
+    def sample(metric, value, **args)
+      log_with_prefix(:sample, metric, value, **args)
     end
 
     def count(metric, value = 1)
@@ -105,11 +105,11 @@ module L2meter
       fire! unless in_batch?
     end
 
-    def wrap
+    def wrap(&block)
       elapsed = elapse
       cloned_buffer = buffer.clone
       write at: :start
-      result, exception = capture(&proc)
+      result, exception = capture(&block)
       merge! cloned_buffer
       if exception
         write unwrap_exception(exception), elapsed: elapsed
