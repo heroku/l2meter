@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe L2meter::Configuration do
+RSpec.describe L2meter::Configuration do
   it "has default output io stream" do
     expect(subject.output).to eq($stdout)
   end

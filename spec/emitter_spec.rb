@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe L2meter::Emitter do
+RSpec.describe L2meter::Emitter do
   let(:configuration) { L2meter::Configuration.new }
   let(:emitter) { described_class.new(configuration: configuration) }
   let(:io) { StringIO.new }

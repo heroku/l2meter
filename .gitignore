@@ -1,9 +1,19 @@
-/.bundle/
-/.yardoc
-/Gemfile.lock
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
+# Ignore all logfiles and tempfiles
+/log/
 /tmp/
+/tags
+
+# Package and dependency caches
+/.bundle
+/Gemfile.lock
+/pkg/
+
+# Generated documentation
+/doc/
+/.yardoc
+/_yardoc/
+
+# Spec reports and failure tracking
+/coverage/
+/spec/rspec-status.txt
+/spec/reports/

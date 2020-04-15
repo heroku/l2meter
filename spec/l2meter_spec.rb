@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe L2meter do
+RSpec.describe L2meter do
   it "has a version number" do
     expect(described_class::VERSION).not_to be_nil
   end
