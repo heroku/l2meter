@@ -1,5 +1,4 @@
 require "time"
-require "thread"
 
 module L2meter
   class Emitter
@@ -38,19 +37,19 @@ module L2meter
     end
 
     def silence!
-      set_output NullOutput.new
+      set_output(NullOutput.new)
     end
 
     def unsilence!
-      set_output nil
+      set_output(nil)
     end
 
     def with_output(new_output)
       old_output = output
-      set_output new_output
+      set_output(new_output)
       yield
     ensure
-      set_output old_output
+      set_output(old_output)
     end
 
     def batch
@@ -58,7 +57,7 @@ module L2meter
       in_batch!
       yield
     ensure
-      reset_in_batch old_state
+      reset_in_batch(old_state)
       write
     end
 
@@ -71,11 +70,11 @@ module L2meter
     end
 
     def count(metric, value = 1)
-      log_with_prefix :count, metric, value
+      log_with_prefix(:count, metric, value)
     end
 
     def unique(metric, value)
-      log_with_prefix :unique, metric, value
+      log_with_prefix(:unique, metric, value)
     end
 
     def clone
@@ -83,7 +82,7 @@ module L2meter
       original_output = output
       self.class.new(configuration: configuration).tap do |clone|
         clone.instance_eval do
-          dynamic_contexts.concat original_contexts
+          dynamic_contexts.concat(original_contexts)
           set_output original_output
         end
       end
@@ -93,7 +92,7 @@ module L2meter
 
     def log_with_prefix(method, key, value, unit: nil)
       key = [configuration.prefix, key, unit].compact.join(".")
-      log Hash["#{method}##{key}", value]
+      log(Hash["#{method}##{key}", value])
     end
 
     def elapse(since = Time.now)
@@ -108,14 +107,14 @@ module L2meter
     def wrap(&block)
       elapsed = elapse
       cloned_buffer = buffer.clone
-      write at: :start
+      write(at: :start)
       result, exception = capture(&block)
-      merge! cloned_buffer
+      merge!(cloned_buffer)
       if exception
-        write unwrap_exception(exception), elapsed: elapsed
-        raise exception
+        write(unwrap_exception(exception), elapsed: elapsed)
+        raise(exception)
       else
-        write at: :finish, elapsed: elapsed
+        write(at: :finish, elapsed: elapsed)
         result
       end
     end
@@ -127,7 +126,7 @@ module L2meter
     end
 
     def wrap_context(context_data)
-      dynamic_contexts.concat context_data
+      dynamic_contexts.concat(context_data)
       yield
     ensure
       context_data.each { dynamic_contexts.pop }
@@ -135,7 +134,7 @@ module L2meter
 
     def contexted(context_data)
       clone.instance_eval do
-        dynamic_contexts.concat context_data
+        dynamic_contexts.concat(context_data)
         self
       end
     end
@@ -144,7 +143,7 @@ module L2meter
       {
         at: :exception,
         exception: exception.class,
-        message: exception.message,
+        message: exception.message
       }
     end
 
@@ -156,7 +155,7 @@ module L2meter
       [
         source_context,
         configuration.context,
-        *dynamic_contexts,
+        *dynamic_contexts
       ].compact
     end
 
@@ -172,13 +171,13 @@ module L2meter
       tokens = buffer.map { |k, v| build_token(k, v) }.compact
       tokens.sort! if configuration.sort?
       return if tokens.empty?
-      output.print tokens.join(SPACE) << NL
+      output.print(tokens.join(SPACE) << NL)
     ensure
       buffer.clear
     end
 
     SPACE = " ".freeze
-    NL    = "\n".freeze
+    NL = "\n".freeze
 
     private_constant :SPACE, :NL
 
@@ -234,7 +233,7 @@ module L2meter
     end
 
     def format_string_value(value)
-      value =~ /[^\w,.:@\-\]\[]/ ?
+      /[^\w,.:@\-\]\[]/.match?(value) ?
         value.strip.gsub(/\s+/, " ").inspect :
         value.to_s
     end
@@ -295,7 +294,7 @@ module L2meter
     end
 
     def in_batch!
-      reset_in_batch true
+      reset_in_batch(true)
     end
 
     def reset_in_batch(new_value)

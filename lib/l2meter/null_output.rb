@@ -1,5 +1,6 @@
 module L2meter
   class NullOutput
-    def print(*); end
+    def print(*)
+    end
   end
 end
