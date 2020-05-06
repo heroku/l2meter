@@ -160,7 +160,7 @@ module L2meter
     end
 
     def source_context
-      {source: configuration.source}
+      configuration.source ? {source: configuration.source} : {}
     end
 
     def resolved_contexts
