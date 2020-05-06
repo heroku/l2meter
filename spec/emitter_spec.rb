@@ -24,7 +24,7 @@ RSpec.describe L2meter::Emitter do
       expect(output).to eq("foo=bar\n")
     end
 
-    it "skips key-value pairs where valus is nil" do
+    it "skips key-value pairs where value is nil" do
       subject.log(foo: :bar, fizz: nil)
       expect(output).to eq("foo=bar\n")
     end
