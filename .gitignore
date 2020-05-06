@@ -2,6 +2,7 @@
 /log/
 /tmp/
 /tags
+.byebug_history
 
 # Package and dependency caches
 /.bundle
