@@ -235,6 +235,27 @@ logger.log my_url: "https://user:password@example.com"
 
 Note that returning nil value will make l2meter omit the field completely.
 
+### "Compacting" values
+
+By default l2meter will treat key-value pairs where the value is `true`, `false` or `nil` differently. `false` and `nil` values will cause the whole pair to be omitted, `true` will cause just the key to be output:
+
+```ruby
+logger.log foo: "hello", bar: true  # => foo=hello bar
+logger.log foo: "hello", bar: false # => foo=hello
+logger.log foo: "hello", bar: nil   # => foo=hello
+```
+
+When the option is disabled, the full pairs are emitted:
+
+```ruby
+config.compact_values = false
+logger.log foo: "hello", bar: true  # => foo=hello bar=true
+logger.log foo: "hello", bar: false # => foo=hello bar=false
+logger.log foo: "hello", bar: nil   # => foo=hello bar=null
+```
+
+Note that "null" is output in the `nil` case.
+
 ## Silence
 
 There's a way to temporary silence the log emitter. This might be useful for

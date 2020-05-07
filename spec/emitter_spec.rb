@@ -39,6 +39,30 @@ RSpec.describe L2meter::Emitter do
       expect(output).to eq("foo=bar fizz\n")
     end
 
+    context "when compact_values config option is disabled" do
+      before { configuration.compact_values = false }
+
+      it "outputs nil values as 'null'" do
+        subject.log(foo: :bar, fizz: nil)
+        expect(output).to eq("foo=bar fizz=null\n")
+      end
+
+      it "outputs false values" do
+        subject.log(foo: :bar, fizz: false)
+        expect(output).to eq("foo=bar fizz=false\n")
+      end
+
+      it "outputs true values" do
+        subject.log(foo: :bar, fizz: true)
+        expect(output).to eq("foo=bar fizz=true\n")
+      end
+
+      it "still outputs bare values" do
+        subject.log(:tag1, :tag2)
+        expect(output).to eq("tag1 tag2\n")
+      end
+    end
+
     it "logs key-value pairs with string as keys" do
       subject.log("foo" => "bar")
       expect(output).to eq("foo=bar\n")

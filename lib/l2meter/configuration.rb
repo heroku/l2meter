@@ -16,6 +16,7 @@ module L2meter
       @output = $stdout
       @float_precision = 4
       @context = nil
+      @compact_values = true
     end
 
     def format_keys(&block)
@@ -28,6 +29,14 @@ module L2meter
 
     def sort=(value)
       @sort = !!value
+    end
+
+    def compact_values?
+      @compact_values
+    end
+
+    def compact_values=(value)
+      @compact_values = !!value
     end
 
     def context

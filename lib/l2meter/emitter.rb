@@ -199,10 +199,10 @@ module L2meter
     end
 
     def format_token(key, value)
-      case value
-      when TrueClass
+      case
+      when value == true && configuration.compact_values?
         key
-      when FalseClass, NilClass
+      when !value && configuration.compact_values?
         nil
       when value == BARE_VALUE_SENTINEL
         key
@@ -222,6 +222,8 @@ module L2meter
         format_time_value(value)
       when Array
         value.map(&method(:format_value)).join(",")
+      when nil
+        "null"
       else
         format_value(value.to_s)
       end
