@@ -29,6 +29,16 @@ RSpec.describe L2meter::Emitter do
       expect(output).to eq("foo=bar\n")
     end
 
+    it "skips key-value pairs where value is false" do
+      subject.log(foo: :bar, fizz: false)
+      expect(output).to eq("foo=bar\n")
+    end
+
+    it "logs key only where value is true" do
+      subject.log(foo: :bar, fizz: true)
+      expect(output).to eq("foo=bar fizz\n")
+    end
+
     it "logs key-value pairs with string as keys" do
       subject.log("foo" => "bar")
       expect(output).to eq("foo=bar\n")
