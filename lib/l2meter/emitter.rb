@@ -4,6 +4,8 @@ module L2meter
   class Emitter
     attr_reader :configuration
 
+    BARE_VALUE_SENTINEL = Object.new.freeze
+
     def initialize(configuration: Configuration.new)
       @configuration = configuration
     end
@@ -202,6 +204,8 @@ module L2meter
         key
       when FalseClass, NilClass
         nil
+      when value == BARE_VALUE_SENTINEL
+        key
       else
         value = format_value(value)
         "#{key}=#{value}"
@@ -253,7 +257,7 @@ module L2meter
       {}.tap do |result|
         args.each do |arg|
           next if arg.nil?
-          arg = Hash[arg, true] unless Hash === arg
+          arg = Hash[arg, BARE_VALUE_SENTINEL] unless Hash === arg
           arg.each do |key, value|
             result[key] = value
           end
