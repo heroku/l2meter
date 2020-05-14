@@ -4,6 +4,8 @@ module L2meter
   class Emitter
     attr_reader :configuration
 
+    BARE_VALUE_SENTINEL = Object.new.freeze
+
     def initialize(configuration: Configuration.new)
       @configuration = configuration
     end
@@ -160,7 +162,7 @@ module L2meter
     end
 
     def source_context
-      {source: configuration.source}
+      configuration.source ? {source: configuration.source} : {}
     end
 
     def resolved_contexts
@@ -197,11 +199,13 @@ module L2meter
     end
 
     def format_token(key, value)
-      case value
-      when TrueClass
+      case
+      when value == true && configuration.compact_values?
         key
-      when FalseClass, NilClass
+      when !value && configuration.compact_values?
         nil
+      when value == BARE_VALUE_SENTINEL
+        key
       else
         value = format_value(value)
         "#{key}=#{value}"
@@ -218,6 +222,8 @@ module L2meter
         format_time_value(value)
       when Array
         value.map(&method(:format_value)).join(",")
+      when nil
+        "null"
       else
         format_value(value.to_s)
       end
@@ -253,7 +259,7 @@ module L2meter
       {}.tap do |result|
         args.each do |arg|
           next if arg.nil?
-          arg = Hash[arg, true] unless Hash === arg
+          arg = Hash[arg, BARE_VALUE_SENTINEL] unless Hash === arg
           arg.each do |key, value|
             result[key] = value
           end
