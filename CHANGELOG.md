@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.15.0] 2020-05-15
+
+### Added
+- Allow outputting of true/false/nil values via a config option. ([#9](https://github.com/heroku/l2meter/pull/9))
+
 ## [0.14.0] 2020-04-16
 
 ### Added
