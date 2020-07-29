@@ -39,9 +39,9 @@ module L2meter
       @compact_values = !!value
     end
 
-    def context
-      if block_given?
-        @context = Proc.new
+    def context(&block)
+      if block
+        @context = block
       else
         @context
       end
