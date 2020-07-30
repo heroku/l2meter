@@ -1,6 +1,6 @@
 # L2meter
 [![Gem Version](https://img.shields.io/gem/v/l2meter.svg)](https://rubygems.org/gems/l2meter)
-[![Build Status](https://travis-ci.com/heroku/l2meter.svg?branch=master)](http://travis-ci.com/heroku/l2meter)
+[![Build Status](https://travis-ci.com/heroku/l2meter.svg?branch=main)](http://travis-ci.com/heroku/l2meter)
 
 L2meter is a little gem for building [logfmt]-compatiable loggers.
 
