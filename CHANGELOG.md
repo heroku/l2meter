@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.15.1] 2020-07-30
+
+### Fixed
+- Fix Ruby 2.7 Proc.new warning ([#10](https://github.com/heroku/l2meter/pull/10))
+
 ## [0.15.0] 2020-05-15
 
 ### Added
