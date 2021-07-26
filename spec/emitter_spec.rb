@@ -164,8 +164,8 @@ RSpec.describe L2meter::Emitter do
       end
 
       it "formats modules/classes" do
-        MyClass = Class.new
-        MyModule = Module.new
+        MyClass = Class.new # rubocop:disable Lint/ConstantDefinitionInBlock
+        MyModule = Module.new # rubocop:disable Lint/ConstantDefinitionInBlock
         subject.log(class: MyClass, module: MyModule)
         expect(output).to eq("class=MyClass module=MyModule\n")
       end
@@ -221,7 +221,7 @@ RSpec.describe L2meter::Emitter do
       value = catch(:value) {
         subject.log(foo: "bar") do
           throw :value, 123
-          "foobar"
+          "foobar" # rubocop:disable Lint/UnreachableCode
         end
       }
 
@@ -244,7 +244,7 @@ RSpec.describe L2meter::Emitter do
             # to make sure l2meter won't blow up on it and report properly. We
             # also make sure the exception is re-raised after reporting is
             # done.
-            raise Exception, "hello world"
+            raise Exception, "hello world" # rubocop:disable Lint/RaiseException
           end
         end
       end

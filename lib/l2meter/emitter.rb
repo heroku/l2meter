@@ -94,7 +94,7 @@ module L2meter
 
     def log_with_prefix(method, key, value, unit: nil)
       key = [configuration.prefix, key, unit].compact.join(".")
-      log(Hash["#{method}##{key}", value])
+      log({"#{method}##{key}" => value})
     end
 
     def elapse(since = Time.now)
@@ -199,12 +199,11 @@ module L2meter
     end
 
     def format_token(key, value)
-      case
-      when value == true && configuration.compact_values?
+      if value == true && configuration.compact_values?
         key
-      when !value && configuration.compact_values?
+      elsif !value && configuration.compact_values?
         nil
-      when value == BARE_VALUE_SENTINEL
+      elsif value == BARE_VALUE_SENTINEL
         key
       else
         value = format_value(value)
@@ -259,7 +258,7 @@ module L2meter
       {}.tap do |result|
         args.each do |arg|
           next if arg.nil?
-          arg = Hash[arg, BARE_VALUE_SENTINEL] unless Hash === arg
+          arg = {arg => BARE_VALUE_SENTINEL} unless Hash === arg
           arg.each do |key, value|
             result[key] = value
           end
