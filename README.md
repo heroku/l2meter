@@ -256,10 +256,9 @@ logger.log foo: "hello", bar: nil   # => foo=hello bar=null
 
 Note that "null" is output in the `nil` case.
 
-## Silence
+## Silencing
 
-There's a way to temporary silence the log emitter. This might be useful for
-tests for example.
+To temporary silence the log emitter, during tests, for example:
 
 ```ruby
 logger.silence do
@@ -276,17 +275,23 @@ The typical setup for RSpec might look like this:
 ```ruby
 RSpec.configure do |config|
   config.around :each do |example|
-    MyLogger.silence &example
+    MyLogger.silence(&example)
   end
 end
 ```
 
 Note that silence method will only suppress logging in the current thread.
-It'll still produce output if you fire up a new thread. To silence it
-completely, use `disable!` method. This will completely silence the logger
-across all threads.
+It'll still produce output if you fire up a new thread.
+To silence it completely, use `#disable!` method.
+This will completely silence the logger across all threads.
 
 ```ruby
 # spec/spec_helper.rb
 MyLogger.disable!
+```
+
+It can be re-enabled via `#enable!`
+
+```ruby
+MyLogger.enable!
 ```

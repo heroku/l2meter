@@ -8,6 +8,8 @@ module L2meter
 
     def initialize(configuration: Configuration.new)
       @configuration = configuration
+      @enabled = true
+      @mutex = Mutex.new
     end
 
     def log(*args, &block)
@@ -25,6 +27,18 @@ module L2meter
         wrap_context(context_data, &block)
       else
         contexted(context_data)
+      end
+    end
+
+    def disable!
+      @mutex.synchronize do
+        @enabled = false
+      end
+    end
+
+    def enable!
+      @mutex.synchronize do
+        @enabled = true
       end
     end
 
@@ -267,7 +281,6 @@ module L2meter
     end
 
     def thread_state
-      @mutex ||= Mutex.new
       @mutex.synchronize do
         @threads ||= {}
 
@@ -287,6 +300,10 @@ module L2meter
     end
 
     def output
+      @mutex.synchronize do
+        return NullOutput.new unless @enabled
+      end
+
       thread_state[:output] ||= configuration.output
     end
 
