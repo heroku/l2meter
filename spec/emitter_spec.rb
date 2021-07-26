@@ -694,7 +694,7 @@ RSpec.describe L2meter::Emitter do
       }
 
       other_output = StringIO.new
-      thread_d = Thread.new {
+      other_io_thread = Thread.new {
         1_000.times do
           subject.with_output(other_output) do
             #=> thread=d line=5
@@ -703,10 +703,10 @@ RSpec.describe L2meter::Emitter do
         end
       }
 
-      thread_e = Thread.new {
+      silenced_thread = Thread.new {
         1_000.times do
           subject.silence do
-            subject.log(thread: :e, line: 6)
+            subject.log(thread: :e, line: "silenced")
           end
         end
       }
@@ -715,8 +715,8 @@ RSpec.describe L2meter::Emitter do
         thread_a,
         thread_b,
         thread_c,
-        thread_d,
-        thread_e
+        other_io_thread,
+        silenced_thread
       ].each(&:join)
 
       lines = output.lines.uniq
@@ -728,22 +728,14 @@ RSpec.describe L2meter::Emitter do
         "thread=c at=start\n",
         "line=3\n",
         "thread=c at=finish elapsed=0.0000\n"
-      ) # the line "thread=e line=6" is not here b/c that was in a `#silence` block
+      ) # the line "thread=e line=silenced" is not here b/c that was in a `#silence` block
 
       expect(other_lines).to contain_exactly("thread=d line=5\n")
     end
 
     describe "#silence!" do
-      after do |example|
-        emitter.unsilence!
-      end
-
       it "only affects the current thread" do
         emitter.silence!
-
-        1_000.times do
-          emitter.log(thread: :main, line: 1)
-        end
 
         thread_b = Thread.new {
           1_000.times do
@@ -756,6 +748,10 @@ RSpec.describe L2meter::Emitter do
             emitter.log(thread: :c, line: 3)
           end
         }
+
+        1_000.times do
+          emitter.log(thread: :main, line: 1)
+        end
 
         [
           thread_b,
