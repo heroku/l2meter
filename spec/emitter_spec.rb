@@ -1,10 +1,9 @@
 RSpec.describe L2meter::Emitter do
   let(:configuration) { L2meter::Configuration.new }
-  let(:emitter) { described_class.new(configuration: configuration) }
   let(:io) { StringIO.new }
   let(:output) { io.tap(&:rewind).read }
 
-  subject { emitter }
+  subject(:emitter) { described_class.new(configuration: configuration) }
 
   before { configuration.output = io }
 
@@ -729,9 +728,45 @@ RSpec.describe L2meter::Emitter do
         "thread=c at=start\n",
         "line=3\n",
         "thread=c at=finish elapsed=0.0000\n"
-      )
+      ) # the line "thread=e line=6" is not here b/c that was in a `#silence` block
 
       expect(other_lines).to contain_exactly("thread=d line=5\n")
+    end
+
+    describe "#silence!" do
+      after do |example|
+        emitter.unsilence!
+      end
+
+      it "only affects the current thread" do
+        emitter.silence!
+
+        1_000.times do
+          emitter.log(thread: :main, line: 1)
+        end
+
+        thread_b = Thread.new {
+          1_000.times do
+            emitter.log(thread: :b, line: 2)
+          end
+        }
+
+        thread_c = Thread.new {
+          1_000.times do
+            emitter.log(thread: :c, line: 3)
+          end
+        }
+
+        [
+          thread_b,
+          thread_c
+        ].each(&:join)
+
+        expect(output.lines.uniq).to contain_exactly(
+          "thread=b line=2\n",
+          "thread=c line=3\n"
+        )
+      end
     end
   end
 end
