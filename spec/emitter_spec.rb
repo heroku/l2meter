@@ -764,5 +764,39 @@ RSpec.describe L2meter::Emitter do
         )
       end
     end
+
+    describe "#disable!" do
+      after do |example|
+        emitter.enable!
+      end
+
+      it "affects all threads" do
+        emitter.disable!
+
+        1_000.times do
+          emitter.log(thread: :main, line: 1)
+        end
+
+        disabled_thread_b = Thread.new {
+          1_000.times do
+            emitter.log(thread: :b, line: 2)
+          end
+        }
+
+        disabled_thread_c = Thread.new {
+          1_000.times do
+            emitter.log(thread: :c, line: 3)
+          end
+        }
+
+        [
+          disabled_thread_b,
+          disabled_thread_c
+        ].each(&:join)
+
+        output.lines
+        expect(output.lines).to be_empty
+      end
+    end
   end
 end
